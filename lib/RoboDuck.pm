@@ -25,7 +25,7 @@ if ($ENV{ROBODUCK_XMPP_JID} and $ENV{ROBODUCK_XMPP_PASSWORD}) {
 }
 
 server $ENV{USER} eq 'roboduck' ? 'irc.freenode.net' : 'irc.perl.org';
-nickname defined $ENV{ROBODUCK_NICKNAME} ? $ENV{ROBODUCK_NICKNAME} : $ENV{USER} eq 'roboduck' ? 'RoboDuck' : 'RoboDuckDev';
+nickname defined $ENV{ROBODUCK_NICKNAME} ? $ENV{ROBODUCK_NICKNAME} : $ENV{USER} eq 'roboduck' ? 'RoboDuck' : 'RoboDuckTest';
 channels '#duckduckgo';
 username 'duckduckgo';
 plugins (
@@ -57,6 +57,12 @@ has '+pidbase' => (
 
 event irc_public => sub {
 	my ( $self, $nickstr, $channels, $msg ) = @_[ OBJECT, ARG0, ARG1, ARG2 ];
+	my $what = lc($msg);
+	my $nick = lc($self->nick);
+	if ( $what =~ /^$nick(\?|!|:|\s|$)/) {
+		$what =~ s/^$nick\??:?(\s|$)?//i;
+		\&myself($self,$nickstr,$channels->[0],$what);
+	}
 	if ($msg =~ /^!yesorno /i) {
 		my $zci = $self->ddg->zci("yes or no");
 		for (@{$channels}) {
@@ -75,8 +81,17 @@ event irc_public => sub {
 	}
 };
 
-event irc_bot_addressed => sub {
-	my ( $self, $nickstr, $channel, $msg ) = @_[ OBJECT, ARG0, ARG1, ARG2 ];
+event irc_msg => sub {
+	my ( $self, $nickstr, $msg ) = @_[ OBJECT, ARG0, ARG2 ];
+	my $what = lc($msg);
+	my $mynick = lc($self->nick);
+	my ( $nick ) = split /!/, $nickstr;
+	\&myself($self,$nickstr,$nick,$what);
+};
+	
+
+sub myself {
+	my ( $self, $nickstr, $channel, $msg ) = @_;
 	my ( $nick ) = split /!/, $nickstr;
 	$self->debug($nick.' told me "'.$msg.'" on '.$channel);
 	my $reply;
