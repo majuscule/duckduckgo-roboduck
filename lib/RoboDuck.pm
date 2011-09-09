@@ -15,6 +15,7 @@ use Cwd qw( getcwd );
 use File::Spec;
 use Try::Tiny;
 use HTML::Entities;
+use POE::Component::IRC::Plugin::SigFail;
 
 with qw(
 	MooseX::Daemonize
@@ -25,14 +26,14 @@ if ($ENV{ROBODUCK_XMPP_JID} and $ENV{ROBODUCK_XMPP_PASSWORD}) {
 }
 
 server $ENV{USER} eq 'roboduck' ? 'irc.freenode.net' : 'irc.perl.org';
-nickname defined $ENV{ROBODUCK_NICKNAME} ? $ENV{ROBODUCK_NICKNAME} : $ENV{USER} eq 'roboduck' ? 'RoboDuck' : 'RoboDuckTest';
+nickname defined $ENV{ROBODUCK_NICKNAME} ? $ENV{ROBODUCK_NICKNAME} : $ENV{USER} eq 'roboduck' ? 'RoboDuck' : 'RoboDuckDev';
 channels '#duckduckgo';
 username 'duckduckgo';
 plugins (
 	'Karma' => POE::Component::IRC::Plugin::Karma->new(
 		extrastats => 1,
-		sqlite => File::Spec->catfile( getcwd(), 'karma_stats.db' ),
-	),
+		sqlite => File::Spec->catfile( getcwd(), 'karma_stats.db' ),),
+		'SigFail' => POE::Component::IRC::Plugin::SigFail->new
 );
 
 after start => sub {
@@ -59,8 +60,8 @@ event irc_public => sub {
 	my ( $self, $nickstr, $channels, $msg ) = @_[ OBJECT, ARG0, ARG1, ARG2 ];
 	my $what = lc($msg);
 	my $nick = lc($self->nick);
-	if ( $what =~ /^$nick(\?|!|:|\s|$)/) {
-		$what =~ s/^$nick\??:?(\s|$)?//i;
+	if ( $what =~ /^$nick(\?|!|:)(|\s|$)/) {
+		$what =~ s/^$nick\??:?!?(\s|$)?//i;
 		\&myself($self,$nickstr,$channels->[0],$what);
 	}
 	if ( $what =~ /^(!|\?)\s/ ) {
@@ -118,7 +119,7 @@ sub myself {
 			} elsif ($zci->has_heading) {
 				$reply = $zci->heading;
 			} else {
-				$reply = "no clue...";
+				$reply = '<irc_sigfail:FAIL>';
 			}
 			$reply .= " ".$zci->definition_url if $zci->has_definition_url;
 			$reply .= " ".$zci->abstract_url if $zci->has_abstract_url;
