@@ -6,6 +6,7 @@ scp $1 roboduck@dukgo.com:~/
 ssh -t roboduck@dukgo.com "(
 	eval \$(perl -I\$HOME/perl5/lib/perl5 -Mlocal::lib) &&
 	roboduck stop &&
+	cpanm --installdeps $1 &&
 	cpanm $1 &&
 	roboduck start
 )"
