@@ -62,11 +62,11 @@ event irc_public => sub {
 	my $nick = lc($self->nick);
 	if ( $what =~ /^$nick(\?|!|:)(|\s|$)/) {
 		$what =~ s/^$nick\??:?!?(\s|$)?//i;
-		\&myself($self,$nickstr,$channels->[0],$what);
+		&myself($self,$nickstr,$channels->[0],$what);
 	}
 	if ( $what =~ /^(!|\?)\s/ ) {
 		$what =~ s/^(!|\?)\s//;
-		\&myself($self,$nickstr,$channels->[0],$what);
+		&myself($self,$nickstr,$channels->[0],$what);
 	}
 	if ($msg =~ /^!yesorno /i) {
 		my $zci = $self->ddg->zci("yes or no");
@@ -91,7 +91,7 @@ event irc_msg => sub {
 	my $what = lc($msg);
 	my $mynick = lc($self->nick);
 	my ( $nick ) = split /!/, $nickstr;
-	\&myself($self,$nickstr,$nick,$what);
+	&myself($self,$nickstr,$nick,$what);
 };
 	
 
