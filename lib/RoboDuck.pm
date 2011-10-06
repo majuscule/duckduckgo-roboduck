@@ -15,7 +15,10 @@ use Cwd qw( getcwd );
 use File::Spec;
 use Try::Tiny;
 use HTML::Entities;
+use JSON::XS;
 use POE::Component::IRC::Plugin::SigFail;
+use POE::Component::WWW::Shorten;
+use POE::Component::FastCGI;
 
 with qw(
 	MooseX::Daemonize
@@ -39,10 +42,65 @@ plugins (
 after start => sub {
 	my $self = shift;
 	return unless $self->is_daemon;
+
+	$self->fcgi; # init it!
+
 	# Required, elsewhere your POE goes nuts
 	POE::Kernel->has_forked if !$self->foreground;
 	POE::Kernel->run;
 };
+
+has fcgi => (
+	is => 'ro',
+	isa => 'Int',
+	traits => [ 'NoGetopt' ],
+	lazy_build => 1
+);
+
+sub _build_fcgi {
+	my $self = shift;
+	POE::Component::FastCGI->new(
+		Port => 6011,
+		Handlers => [
+			[ '/roboduck/gh-commit' => sub {
+					my $request = shift;
+					print $request->query('payload');
+					$self->received_git_commit( decode_json($request->query('payload')) );
+
+					my $response = $request->make_response;
+					$response->header( "Content-Type" => "text/plain" );
+					$response->content( "OK!" );
+					# $response->send; # can't do this because it breaks POCO::FastCGI
+				} ],
+		]
+	);
+}
+
+has shorten => (
+	is => 'ro',
+	isa => 'POE::Component::WWW::Shorten',
+	traits => [ 'NoGetopt' ],
+	lazy_build => 1
+);
+
+sub _build_shorten {
+	my $self = shift;
+
+	my $type;
+	my @params;
+	if ( defined $ENV{ROBODUCK_BITLY_USERNAME} && defined $ENV{ROBODUCK_BITLY_KEY} ) {
+		$type = 'Bitly';
+		@params = ($ENV{ROBODUCK_BITLY_USERNAME}, $ENV{ROBODUCK_BITLY_KEY});
+	} else {
+		$type = 'IsGd';
+	}
+
+	POE::Component::WWW::Shorten->spawn(
+		alias => 'shorten',
+		type => $type,
+		params => \@params
+	);
+}
 
 has ddg => (
 	isa => 'WWW::DuckDuckGo',
@@ -55,6 +113,57 @@ has ddg => (
 has '+pidbase' => (
 	default => sub { getcwd },
 );
+
+sub external_message {
+	my ( $self, $msg ) = @_;
+
+	for (@{$self->get_channels}) {
+		$self->privmsg( $_ => $msg );
+	}
+}
+
+sub received_git_commit {
+	my ( $self, $info ) = @_;
+
+	my ( $pusher, $repo, $commits, $ref ) = @{$info}{ 'pusher', 'repository', 'commits', 'ref' };
+	$ref =~ s{^refs/heads/}{};
+
+	my $repo_name = $repo->{name};
+	my $pusher_name = $pusher->{name};
+	my $commit_count = scalar @{$commits};
+	my $plural = ($commit_count == 1) ? '' : 's';
+
+	my $initial_msg = "[git] $pusher_name pushed $commit_count commit$plural to $repo_name/$ref";
+
+	for (@{$self->get_channels}) {
+		$self->privmsg( $_ => $initial_msg );
+	}
+
+	for (@{$commits}) {
+		my ( $id, $url, $author, $msg ) = @{$_}{ 'id', 'url', 'author', 'message' };
+		my $short_id = substr $id, 0, 7;
+		my $author_name = $author->{name};
+
+		my $commit_message = "[$short_id] $author_name - $msg SHORT_URL";
+		$self->shorten->shorten({
+				url => $url,
+				event => 'announce_shortened_url',
+				session => $self->get_session_id,
+				_message => $commit_message
+			});
+	}
+}
+
+event announce_shortened_url => sub {
+	my ( $self, $returned ) = @_[ OBJECT, ARG0 ];
+
+	my ( $message, $url ) = @{$returned}{ '_message', 'short' };
+	$message =~ s/SHORT_URL/$url/;
+
+	for (@{$self->get_channels}) {
+		$self->privmsg( $_ => $message );
+	}
+};
 
 event irc_public => sub {
 	my ( $self, $nickstr, $channels, $msg ) = @_[ OBJECT, ARG0, ARG1, ARG2 ];
