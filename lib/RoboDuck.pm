@@ -60,20 +60,24 @@ has fcgi => (
 sub _build_fcgi {
 	my $self = shift;
 	POE::Component::FastCGI->new(
-		Port => 6011,
+		Port => 8667,
 		Handlers => [
-			[ '/roboduck/gh-commit' => sub {
-					my $request = shift;
-					print $request->query('payload');
-					$self->received_git_commit( decode_json($request->query('payload')) );
-
-					my $response = $request->make_response;
-					$response->header( "Content-Type" => "text/plain" );
-					$response->content( "OK!" );
-					# $response->send; # can't do this because it breaks POCO::FastCGI
-				} ],
+			[ '/gh-commit' => sub { $self->gh_commit(@_) } ],
 		]
 	);
+}
+
+sub gh_commit {
+	my ( $self, $request ) = @_;
+	my $response = $request->make_response;
+	my $ok = 0;
+	eval {
+		$request->query('payload');
+		$self->received_git_commit( decode_json($request->query('payload')) );
+		$ok = 1;
+	};
+	$response->header( "Content-Type" => "text/plain" );
+	$response->content( $ok ? "OK!" : "NOT OK!" );
 }
 
 has shorten => (
