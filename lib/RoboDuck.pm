@@ -250,11 +250,12 @@ sub myself {
 				$reply = '';
 				my @output = ();
 				if ($waq->success) {
-					for my $pod (@{$waq->pods}) {
-				    	last if length(@output) > 5;
-				    					    	
+					for my $pod (@{$waq->pods}) {				    					    	
 						for my $subpod (@{$pod->subpods}) {
-			    			push(@output, $subpod->plaintext) if $subpod->plaintext;
+							last if length(join(', ', @output)) > 200;
+							my $plaintext = $subpod->plaintext;
+							$plaintext =~ s/\n/; /g;
+			    			push(@output, $plaintext) if $plaintext;
 				        }
 					}
 				}
@@ -268,6 +269,7 @@ sub myself {
 		$self->privmsg( $channel => "$nick: ".$reply );
 	} catch {
 		$self->privmsg( $channel => "doh!" );
+		p($_);
 	}
 };
 
