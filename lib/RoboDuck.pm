@@ -10,6 +10,7 @@ use Cwd;
 our $VERSION ||= '0.0development';
 
 use WWW::DuckDuckGo;
+use WWW::WolframAlpha;
 use POE::Component::IRC::Plugin::Karma;
 use Cwd qw( getcwd );
 use File::Spec;
@@ -114,6 +115,17 @@ has ddg => (
 	default => sub { WWW::DuckDuckGo->new( http_agent_name => __PACKAGE__.'/'.$VERSION ) },
 );
 
+my $APPID;
+$APPID = $ENV{'ROBODUCK_WA_APPID'} if $ENV{'ROBODUCK_WA_APPID'};
+$APPID = '' unless $ENV{'ROBODUCK_WA_APPID'};
+has wa => (
+	isa => 'WWW::WolframAlpha',
+	is => 'rw',
+	traits => [ 'NoGetopt' ],
+	lazy => 1,
+	default => sub { WWW::WolframAlpha->new( appid => $APPID ) },
+);
+
 has '+pidbase' => (
 	default => sub { getcwd },
 );
@@ -214,7 +226,9 @@ sub myself {
 	$self->debug($nick.' told me "'.$msg.'" on '.$channel);
 	my $reply;
 	my $zci;
+	my $waq;
 	try {
+		print "1";
 		if (!$msg) {
 			$reply = "I'm here in version ".$VERSION ;
 		} elsif ($msg =~ /your order/i or $msg =~ /your rules/i) {
@@ -231,11 +245,22 @@ sub myself {
 				$reply .= " (".$zci->abstract_source.")" if $zci->has_abstract_source;
 			} elsif ($zci->has_heading) {
 				$reply = $zci->heading;
-			} else {
-				$reply = '<irc_sigfail:FAIL>';
+			
+			} elsif ($APPID && ($waq = $self->wa->query( input => $msg, ))) {
+				$reply = '';
+				my @output = ();
+				if ($waq->success) {
+					for my $pod (@{$waq->pods}) {
+				    	last if length(@output) > 5;
+				    					    	
+						for my $subpod (@{$pod->subpods}) {
+			    			push(@output, $subpod->plaintext) if $subpod->plaintext;
+				        }
+					}
+				}
+				$reply = join(', ', @output) if @output;
+				$reply = '<irc_sigfail:FAIL>' unless @output;
 			}
-			$reply .= " ".$zci->definition_url if $zci->has_definition_url;
-			$reply .= " ".$zci->abstract_url if $zci->has_abstract_url;
 		} else {
 			$reply = '0 :(';
 		}
