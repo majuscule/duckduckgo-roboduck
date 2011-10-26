@@ -5,6 +5,7 @@ CURRENT_DATE_FILENAME=$( date +%Y%m%d_%H%M%S )
 scp $1 roboduck@dukgo.com:~/
 ssh -t roboduck@dukgo.com "(
 	eval \$(perl -I\$HOME/perl5/lib/perl5 -Mlocal::lib) &&
+	. \$HOME/roboduck_config.sh &&
 	roboduck stop &&
 	cpanm --installdeps $1 &&
 	cpanm $1 &&
