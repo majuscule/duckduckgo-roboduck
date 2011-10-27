@@ -185,7 +185,7 @@ event irc_public => sub {
 	my ( $self, $nickstr, $channels, $msg ) = @_[ OBJECT, ARG0, ARG1, ARG2 ];
 	my $what = lc($msg);
 	my $nick = lc($self->nick);
-	if ( $what =~ /^$nick(\?|!|:)(|\s|$)/) {
+	if ( $what =~ /^$nick(\?|!|:|,)(|\s|$)/) {
 		$what =~ s/^$nick\??:?!?(\s|$)?//i;
 		&myself($self,$nickstr,$channels->[0],$what);
 	}
