@@ -209,6 +209,11 @@ event irc_public => sub {
 		}
 		return;
 	}
+	if ( $msg =~ /(\W|^)cows{0,1}(\W|$)/i ) {
+		for (@{$channels}) {
+			$self->privmsg( $_ => "MOOOOooo! http://www.youtube.com/watch?v=FavUpD_IjVY" );
+		}
+	}
 };
 
 event irc_msg => sub {
