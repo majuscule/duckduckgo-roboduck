@@ -12,6 +12,7 @@ our $VERSION ||= '0.0development';
 use WWW::DuckDuckGo;
 use WWW::WolframAlpha;
 use POE::Component::IRC::Plugin::Karma;
+use POE::Component::IRC::Plugin::WWW::GetPageTitle;
 use Cwd qw( getcwd );
 use File::Spec;
 use Try::Tiny;
@@ -37,7 +38,13 @@ plugins (
 	'Karma' => POE::Component::IRC::Plugin::Karma->new(
 		extrastats => 1,
 		sqlite => File::Spec->catfile( getcwd(), 'karma_stats.db' ),),
-		'SigFail' => POE::Component::IRC::Plugin::SigFail->new
+		'SigFail' => POE::Component::IRC::Plugin::SigFail->new,
+		'Title' => POE::Component::IRC::Plugin::WWW::GetPageTitle->new(
+			max_uris  => 2,
+			find_uris => 1,
+			addressed => 0,
+			trigger   => qr/^/,
+		),
 );
 
 after start => sub {
