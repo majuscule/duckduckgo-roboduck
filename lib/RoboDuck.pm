@@ -43,7 +43,8 @@ plugins (
 			max_uris  => 2,
 			find_uris => 1,
 			addressed => 0,
-			trigger   => qr/^!title\s+(?=\S)/i,
+			trigger   => qw|^https?://|,
+			debug => 1,
 		),
 );
 
@@ -245,7 +246,7 @@ sub myself {
 			$reply = "I'm here in version ".$VERSION ;
 		} elsif ($msg =~ /your order/i or $msg =~ /your rules/i) {
 			$reply = "1. Serve the public trust, 2. Protect the innocent, 3. Uphold the law, 4. .... and dont track you! http://donttrack.us/";
-		} elsif ($msg =~ /[are you|you are] [awesome|great|wonderful|perfect]/i) {
+		} elsif ($msg =~ /^(are you|you are)\s+(awesome|great|wonderful|perfect)/i) {
 			$reply = "Yes. Yes I am.";
 		} elsif ($zci = $self->ddg->zci($msg)) {
 			if ($zci->has_answer) {
