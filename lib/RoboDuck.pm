@@ -193,7 +193,7 @@ event irc_public => sub {
 	my ( $self, $nickstr, $channels, $msg ) = @_[ OBJECT, ARG0, ARG1, ARG2 ];
 	my $what = lc($msg);
 	my $nick = lc($self->nick);
-	if ( $what =~ /^$nick(\?|!|:|,)(|\s|$)/) {
+	if ( $what =~ /^$nick(\?|!|:|,)(|\s|$)/i) {
 		$what =~ s/^$nick\??:?!?(\s|$)?//i;
 		&myself($self,$nickstr,$channels->[0],$what);
 	}
@@ -248,6 +248,8 @@ sub myself {
 			$reply = "1. Serve the public trust, 2. Protect the innocent, 3. Uphold the law, 4. .... and dont track you! http://donttrack.us/";
 		} elsif ($msg =~ /^(are you|you are)\s+(awesome|great|wonderful|perfect)/i) {
 			$reply = "Yes. Yes I am.";
+		} elsif ($msg =~ /(\W|^)google/i) {
+			$reply = "google definition: that shitty search engine that nobody cares about because it sucks ass.";
 		} elsif ($zci = $self->ddg->zci($msg)) {
 			if ($zci->has_answer) {
 				$reply = $zci->answer;
