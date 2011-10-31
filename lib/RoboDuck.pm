@@ -253,15 +253,18 @@ sub myself {
 	my $zci;
 	my $waq;
 	try {
-		print "1";
 		if (!$msg) {
 			$reply = "I'm here in version ".$VERSION ;
+			print "0.1\n";
 		} elsif ($msg =~ /your order/i or $msg =~ /your rules/i) {
 			$reply = "1. Serve the public trust, 2. Protect the innocent, 3. Uphold the law, 4. .... and dont track you! http://donttrack.us/";
+			print "0.2\n";
 		} elsif ($msg =~ /^(are you|you are)\s+(awesome|great|wonderful|perfect)/i) {
 			$reply = "Yes. Yes I am.";
+			print "0.3\n"
 		} elsif ($msg =~ /^google$/i) {
 			$reply = "google definition: that shitty search engine that nobody cares about because it sucks ass.";
+			print "0.4\n";
 		} elsif ($zci = $self->ddg->zci($msg)) {
 			if ($zci->has_answer) {
 				$reply = $zci->answer;
@@ -274,7 +277,6 @@ sub myself {
 				$reply .= " (".$zci->abstract_source.")" if $zci->has_abstract_source;
 			} elsif ($zci->has_heading) {
 				$reply = $zci->heading;
-			
 			} elsif ($APPID && ($waq = $self->wa->query( input => $msg, ))) {
 				$reply = '';
 				my @output = ();
@@ -290,11 +292,12 @@ sub myself {
 				}
 				$reply = join(', ', @output) if @output;
 				$reply = '<irc_sigfail:FAIL>' unless @output;
+			} else {
+				$reply = '<irc_sigfail:FAIL>';
 			}
 		} else {
 			$reply = '0 :(';
 		}
-		$reply = '<irc_sigfail:FAIL>' unless $reply;
 		$reply = decode_entities($reply);
 		$self->privmsg( $channel => "$nick: ".$reply );
 	} catch {
