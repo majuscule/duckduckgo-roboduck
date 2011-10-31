@@ -231,7 +231,19 @@ event irc_msg => sub {
 	my ( $nick ) = split /!/, $nickstr;
 	&myself($self,$nickstr,$nick,$what);
 };
-	
+
+event irc_mode => sub {
+	my ( $self, $nickstr, $channel, $modes, $target ) = @_[ OBJECT, ARG0, ARG1, ARG2, ARG3 ];
+	$self->debug( $nickstr." ".$channel." ".$modes );
+	my ( $nick ) = split /!/, $nickstr;
+	if ($target) {
+		$self->debug( $nick." changed mode of ".$target );
+		my $mynick = lc($self->nick);
+		if (($target =~ m#^$mynick$#i) && ($modes =~ m#[+][o]#)) {
+			print "OK, Do stuff.";
+		}
+	}
+};
 
 sub myself {
 	my ( $self, $nickstr, $channel, $msg ) = @_;
@@ -248,7 +260,7 @@ sub myself {
 			$reply = "1. Serve the public trust, 2. Protect the innocent, 3. Uphold the law, 4. .... and dont track you! http://donttrack.us/";
 		} elsif ($msg =~ /^(are you|you are)\s+(awesome|great|wonderful|perfect)/i) {
 			$reply = "Yes. Yes I am.";
-		} elsif ($msg =~ /(\W|^)google/i) {
+		} elsif ($msg =~ /^google$/i) {
 			$reply = "google definition: that shitty search engine that nobody cares about because it sucks ass.";
 		} elsif ($zci = $self->ddg->zci($msg)) {
 			if ($zci->has_answer) {
@@ -282,6 +294,7 @@ sub myself {
 		} else {
 			$reply = '0 :(';
 		}
+		$reply = '<irc_sigfail:FAIL>' unless $reply;
 		$reply = decode_entities($reply);
 		$self->privmsg( $channel => "$nick: ".$reply );
 	} catch {
