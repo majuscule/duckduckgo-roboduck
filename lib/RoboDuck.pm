@@ -35,6 +35,7 @@ nickname defined $ENV{ROBODUCK_NICKNAME} ? $ENV{ROBODUCK_NICKNAME} : $ENV{USER} 
 channels '#duckduckgo';
 username 'duckduckgo';
 plugins (
+    Info => 'RoboDuck::Plugin::Info',
 	'Karma' => POE::Component::IRC::Plugin::Karma->new(
 		extrastats => 1,
 		sqlite => File::Spec->catfile( getcwd(), 'karma_stats.db' ),),
@@ -115,13 +116,6 @@ sub _build_shorten {
 	);
 }
 
-has ddg => (
-	isa => 'WWW::DuckDuckGo',
-	is => 'rw',
-	traits => [ 'NoGetopt' ],
-	lazy => 1,
-	default => sub { WWW::DuckDuckGo->new( http_agent_name => __PACKAGE__.'/'.$VERSION, safeoff => 1 ) },
-);
 
 my $APPID;
 $APPID = $ENV{'ROBODUCK_WA_APPID'} if $ENV{'ROBODUCK_WA_APPID'};
@@ -190,120 +184,120 @@ event announce_shortened_url => sub {
 };
 
 event irc_public => sub {
-	my ( $self, $nickstr, $channels, $msg ) = @_[ OBJECT, ARG0, ARG1, ARG2 ];
-	my $what = lc($msg);
-	my $nick = lc($self->nick);
-	if ( $what =~ /^$nick(\?|!|:|,)(|\s|$)/i) {
-		$what =~ s/^$nick\??:?!?(\s|$)?//i;
-		&myself($self,$nickstr,$channels->[0],$what);
-	}
-	if ( $what =~ /^(!|\?)\s/ ) {
-		$what =~ s/^(!|\?)\s//;
-		&myself($self,$nickstr,$channels->[0],$what);
-	}
-	if ($msg =~ /^!yesorno /i) {
-		my $zci = $self->ddg->zci("yes or no");
-		for (@{$channels}) {
-			$self->privmsg( $_ => "The almighty DuckOracle says..." );
-		}
-		if ($zci->answer =~ /^no /) {
-			for (@{$channels}) {
-				$self->delay_add( say_later => 2, $_, "... no" );
-			}
-		} else {
-			for (@{$channels}) {
-				$self->delay_add( say_later => 2, $_, "... yes" );
-			}
-		}
-		return;
-	}
-	if ( $msg =~ /(\W|^)cows{0,1}(\W|$)/i ) {
-		for (@{$channels}) {
-			$self->privmsg( $_ => "MOOOOooo! http://www.youtube.com/watch?v=FavUpD_IjVY" );
-		}
-	}
+  my ( $self, $nickstr, $channels, $msg ) = @_[ OBJECT, ARG0, ARG1, ARG2 ];
+  my $what = lc($msg);
+  my $nick = lc($self->nick);
+  if ( $what =~ /^$nick(\?|!|:|,)(|\s|$)/i) {
+      $what =~ s/^$nick\??:?!?(\s|$)?//i;
+      &myself($self,$nickstr,$channels->[0],$what);
+  }
+  if ( $what =~ /^(!|\?)\s/ ) {
+      $what =~ s/^(!|\?)\s//;
+      &myself($self,$nickstr,$channels->[0],$what);
+  }
+  if ($msg =~ /^!yesorno /i) {
+      my $zci = $self->ddg->zci("yes or no");
+      for (@{$channels}) {
+          $self->privmsg( $_ => "The almighty DuckOracle says..." );
+      }
+      if ($zci->answer =~ /^no /) {
+          for (@{$channels}) {
+              $self->delay_add( say_later => 2, $_, "... no" );
+          }
+      } else {
+          for (@{$channels}) {
+              $self->delay_add( say_later => 2, $_, "... yes" );
+          }
+      }
+      return;
+  }
+  if ( $msg =~ /(\W|^)cows{0,1}(\W|$)/i ) {
+      for (@{$channels}) {
+          $self->privmsg( $_ => "MOOOOooo! http://www.youtube.com/watch?v=FavUpD_IjVY" );
+      }
+  }
 };
 
 event irc_msg => sub {
-	my ( $self, $nickstr, $msg ) = @_[ OBJECT, ARG0, ARG2 ];
-	my $what = lc($msg);
-	my $mynick = lc($self->nick);
-	my ( $nick ) = split /!/, $nickstr;
-	&myself($self,$nickstr,$nick,$what);
+  my ( $self, $nickstr, $msg ) = @_[ OBJECT, ARG0, ARG2 ];
+  my $what = lc($msg);
+  my $mynick = lc($self->nick);
+  my ( $nick ) = split /!/, $nickstr;
+  &myself($self,$nickstr,$nick,$what);
 };
 
 event irc_mode => sub {
-	my ( $self, $nickstr, $channel, $modes, $target ) = @_[ OBJECT, ARG0, ARG1, ARG2, ARG3 ];
-	$self->debug( $nickstr." ".$channel." ".$modes );
-	my ( $nick ) = split /!/, $nickstr;
-	if ($target) {
-		$self->debug( $nick." changed mode of ".$target );
-		my $mynick = lc($self->nick);
-		if (($target =~ m#^$mynick$#i) && ($modes =~ m#[+][o]#)) {
-			print "OK, Do stuff.";
-		}
-	}
+  my ( $self, $nickstr, $channel, $modes, $target ) = @_[ OBJECT, ARG0, ARG1, ARG2, ARG3 ];
+  $self->debug( $nickstr." ".$channel." ".$modes );
+  my ( $nick ) = split /!/, $nickstr;
+  if ($target) {
+      $self->debug( $nick." changed mode of ".$target );
+      my $mynick = lc($self->nick);
+      if (($target =~ m#^$mynick$#i) && ($modes =~ m#[+][o]#)) {
+          print "OK, Do stuff.";
+      }
+  }
 };
 
 sub myself {
-	my ( $self, $nickstr, $channel, $msg ) = @_;
-	my ( $nick ) = split /!/, $nickstr;
-	$self->debug($nick.' told me "'.$msg.'" on '.$channel);
-	my $reply;
-	my $zci;
-	my $waq;
-	try {
-		if (!$msg) {
-			$reply = "I'm here in version ".$VERSION ;
-		} elsif ($msg =~ /your order/i or $msg =~ /your rules/i) {
-			$reply = "1. Serve the public trust, 2. Protect the innocent, 3. Uphold the law, 4. .... and dont track you! http://donttrack.us/";
-		} elsif ($msg =~ /^(are you|you are)\s+(awesome|great|wonderful|perfect)/i) {
-			$reply = "Yes. Yes I am.";
-		} elsif ($msg =~ /^google$/i) {
-			$reply = "google definition: that shitty search engine that nobody cares about because it sucks ass.";
-		} elsif ($zci = $self->ddg->zci($msg)) {
-			if ($zci->has_answer) {
-				$reply = $zci->answer;
-				$reply .= " (".$zci->answer_type.")";
-			} elsif ($zci->has_definition) {
-				$reply = $zci->definition;
-				$reply .= " (".$zci->definition_source.")" if $zci->has_definition_source;
-			} elsif ($zci->has_abstract_text) {
-				$reply = $zci->abstract_text;
-				$reply .= " (".$zci->abstract_source.")" if $zci->has_abstract_source;
-			} elsif ($APPID && ($waq = $self->wa->query( input => $msg, ))) {
-				$reply = '';
-				my @output = ();
-				if ($waq->success) {
-					for my $pod (@{$waq->pods}) {				    					    	
-						for my $subpod (@{$pod->subpods}) {
-							last if length(join(', ', @output)) > 200;
-							my $plaintext = $subpod->plaintext;
-							$plaintext =~ s/\n/; /g;
-			    			push(@output, $plaintext) if $plaintext;
-				        }
-					}
-				}
-				$reply = join(', ', @output) if @output;
-				$reply = '<irc_sigfail:FAIL>' unless @output;
-			} else {
-				$reply = '<irc_sigfail:FAIL>';
-			}
-		} else {
-			$reply = '0 :(';
-		}
-		$reply = decode_entities($reply);
-		$reply =~ s/\n/; /g;
-		$self->privmsg( $channel => "$nick: ".$reply );
-	} catch {
-		$self->privmsg( $channel => "doh!" );
-		#p($_);
-	}
+  my ( $self, $nickstr, $channel, $msg ) = @_;
+  my ( $nick ) = split /!/, $nickstr;
+  $self->debug($nick.' told me "'.$msg.'" on '.$channel);
+  my $reply;
+  my $zci;
+  my $waq;
+  try {
+      if (!$msg) {
+          $reply = "I'm here in version ".$VERSION ;
+      } elsif ($msg =~ /your order/i or $msg =~ /your rules/i) {
+          $reply = "1. Serve the public trust, 2. Protect the innocent, 3. Uphold the law, 4. .... and dont track you! http://donttrack.us/";
+      } elsif ($msg =~ /^(are you|you are)\s+(awesome|great|wonderful|perfect)/i) {
+          $reply = "Yes. Yes I am.";
+      } elsif ($msg =~ /^google$/i) {
+          $reply = "google definition: that shitty search engine that nobody cares about because it sucks ass.";
+      } elsif ($zci = $self->ddg->zci($msg)) {
+          if ($zci->has_answer) {
+              $reply = $zci->answer;
+              $reply .= " (".$zci->answer_type.")";
+          } elsif ($zci->has_definition) {
+              $reply = $zci->definition;
+              $reply .= " (".$zci->definition_source.")" if $zci->has_definition_source;
+          } elsif ($zci->has_abstract_text) {
+              $reply = $zci->abstract_text;
+              $reply .= " (".$zci->abstract_source.")" if $zci->has_abstract_source;
+          } elsif ($APPID && ($waq = $self->wa->query( input => $msg, ))) {
+              $reply = '';
+              my @output = ();
+              if ($waq->success) {
+                  for my $pod (@{$waq->pods}) {                                               
+                      for my $subpod (@{$pod->subpods}) {
+                          last if length(join(', ', @output)) > 200;
+                          my $plaintext = $subpod->plaintext;
+                          $plaintext =~ s/\n/; /g;
+                          push(@output, $plaintext) if $plaintext;
+                      }
+                  }
+              }
+              $reply = join(', ', @output) if @output;
+              $reply = '<irc_sigfail:FAIL>' unless @output;
+          } else {
+              $reply = '<irc_sigfail:FAIL>';
+          }
+      } else {
+          $reply = '0 :(';
+      }
+      $reply = decode_entities($reply);
+      $reply =~ s/\n/; /g;
+      $self->privmsg( $channel => "$nick: ".$reply );
+  } catch {
+      $self->privmsg( $channel => "doh!" );
+      #p($_);
+  }
 };
 
 event say_later => sub {
-	my ( $self, $channel, $msg ) = @_[ OBJECT, ARG0, ARG1 ];
-	$self->privmsg( $channel => $msg );
+  my ( $self, $channel, $msg ) = @_[ OBJECT, ARG0, ARG1 ];
+  $self->privmsg( $channel => $msg );
 };
 
 event 'no' => sub {
