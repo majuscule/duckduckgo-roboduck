@@ -43,7 +43,7 @@ plugins (
 			max_uris  => 2,
 			find_uris => 1,
 			addressed => 0,
-			trigger   => qw|^https?://|,
+			trigger   => qw|https?://|,
 			debug => 1,
 		),
 );
