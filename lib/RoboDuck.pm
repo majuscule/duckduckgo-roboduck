@@ -217,9 +217,19 @@ event irc_public => sub {
 		}
 		return;
 	}
-	if ( $msg =~ /(\W|^)cows{0,1}(\W|$)/i ) {
+	if ( $msg =~ /(\W|^)cows?(\W|$)/i ) {
 		for (@{$channels}) {
 			$self->privmsg( $_ => "MOOOOooo! http://www.youtube.com/watch?v=FavUpD_IjVY" );
+		}
+	}
+	elsif ( $msg =~ /(\W|^)(meow|cats?|kittens?|kitty|kitties)(\W|$)/i ) {
+		for (@{$channels}) {
+			$self->privmsg( $_ => "MEOW. https://www.youtube.com/watch?v=QNwCojCJ3-Q" );	
+		}
+	}
+	elsif ( $msg =~ /(\W|^)(bear|cycles?)(\W|$)/i ) {
+		for (@{$channels}) {
+			$self->privmsg( $_ => "http://www.youtube.com/watch?v=-0Xa4bHcJu8" );
 		}
 	}
 };
