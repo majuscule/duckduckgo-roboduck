@@ -217,7 +217,7 @@ event irc_public => sub {
 		}
 		return;
 	}
-	if ( $msg =~ /(\W|^)cows?(\W|$)/i ) {
+	if ( $msg =~ /(\W|^)(moo|cows?)(\W|$)/i ) {
 		for (@{$channels}) {
 			$self->privmsg( $_ => "MOOOOooo! http://www.youtube.com/watch?v=FavUpD_IjVY" );
 		}
@@ -281,6 +281,7 @@ sub myself {
 			} elsif ($zci->has_abstract_text) {
 				$reply = $zci->abstract_text;
 				$reply .= " (".$zci->abstract_source.")" if $zci->has_abstract_source;
+				$reply .= " ".$zci->abstract_url if $zci->has_abstract_url;
 			} elsif ($APPID && ($waq = $self->wa->query( input => $msg, ))) {
 				$reply = '';
 				my @output = ();
