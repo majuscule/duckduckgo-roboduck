@@ -263,9 +263,12 @@ sub myself {
 	my $reply;
 	my $zci;
 	my $waq;
+    my $mynick = $self->nick;
 	try {
 		if (!$msg) {
-			$reply = "I'm here in version ".$VERSION ;
+			$reply = "I'm here, version ".$VERSION ;
+        } elsif ($msg =~ /^($mynick)\W?$/i) {
+            $reply = "That's me! My source: http://github.com/Getty/duckduckgo-roboduck";
 		} elsif ($msg =~ /your order/i or $msg =~ /your rules/i) {
 			$reply = "1. Serve the public trust, 2. Protect the innocent, 3. Uphold the law, 4. .... and dont track you! http://donttrack.us/";
 		} elsif ($msg =~ /^(are you|you are)\s+(awesome|great|wonderful|perfect)/i) {
