@@ -21,6 +21,7 @@ use JSON::XS;
 use POE::Component::IRC::Plugin::SigFail;
 use POE::Component::WWW::Shorten;
 use POE::Component::FastCGI;
+use Moose::Util::TypeConstraints;
 
 with qw(
 	MooseX::Daemonize
@@ -44,7 +45,7 @@ plugins (
 			find_uris => 1,
 			addressed => 0,
 			trigger   => qw|https?://|,
-			debug => 1,
+			debug => 0,
 		),
 );
 
@@ -123,21 +124,20 @@ has ddg => (
 	default => sub { WWW::DuckDuckGo->new( http_agent_name => __PACKAGE__.'/'.$VERSION, safeoff => 1 ) },
 );
 
-my $APPID;
-$APPID = $ENV{'ROBODUCK_WA_APPID'} if $ENV{'ROBODUCK_WA_APPID'};
-$APPID = '' unless $ENV{'ROBODUCK_WA_APPID'};
+class_type 'WWW::WolframAlpha';
 has wa => (
-	isa => 'WWW::WolframAlpha',
+	isa => 'WWW::WolframAlpha|Undef',
 	is => 'rw',
 	traits => [ 'NoGetopt' ],
-	lazy => 1,
-	default => sub { WWW::WolframAlpha->new( appid => $APPID ) },
+	lazy_build => 1,
 );
 
+sub _build_wa {
+	defined $ENV{ROBODUCK_WA_APPID} ? WWW::WolframAlpha->new( appid => $ENV{ROBODUCK_WA_APPID} ) : undef;
+}
 has '+pidbase' => (
-	default => sub { getcwd },
+    default => sub { getcwd },
 );
-
 sub external_message {
 	my ( $self, $msg ) = @_;
 
@@ -196,6 +196,7 @@ event irc_public => sub {
 	if ( $what =~ /^$nick(\?|!|:|,)(|\s|$)/i) {
 		$what =~ s/^$nick\??:?!?(\s|$)?//i;
 		&myself($self,$nickstr,$channels->[0],$what);
+        return;
 	}
 	if ( $what =~ /^(!|\?)\s/ ) {
 		$what =~ s/^(!|\?)\s//;
@@ -282,7 +283,7 @@ sub myself {
 				$reply = $zci->abstract_text;
 				$reply .= " (".$zci->abstract_source.")" if $zci->has_abstract_source;
 				$reply .= " ".$zci->abstract_url if $zci->has_abstract_url;
-			} elsif ($APPID && ($waq = $self->wa->query( input => $msg, ))) {
+			} elsif ($self->wa && ($waq = $self->wa->query( input => $msg, ))) {
 				$reply = '';
 				my @output = ();
 				if ($waq->success) {
