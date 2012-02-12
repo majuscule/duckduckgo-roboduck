@@ -150,14 +150,23 @@ sub received_git_commit {
 	my ( $self, $info ) = @_;
 
 	my ( $pusher, $repo, $commits, $ref ) = @{$info}{ 'pusher', 'repository', 'commits', 'ref' };
-	$ref =~ s{^refs/heads/}{};
+	my $repo_base_url = $repo->{url};
+	my $repo_url;
+	if ($ref =~ m|^refs/heads/|) {
+		$ref =~ s{^refs/heads/}{};
+		$repo_url = "$repo_base_url/tree/$ref";
+	}
+	else {
+		$repo_url = $repo_base_url;
+	}
 
 	my $repo_name = $repo->{name};
 	my $pusher_name = $pusher->{name};
 	my $commit_count = scalar @{$commits};
 	my $plural = ($commit_count == 1) ? '' : 's';
+	my $link_and_ref = ($repo_url = $repo_base_url) ? "$repo_url" : "$repo_name/$ref ($repo_url)";
 
-	my $initial_msg = "[git] $pusher_name pushed $commit_count commit$plural to $repo_name/$ref";
+	my $initial_msg = "[git] $pusher_name pushed $commit_count commit$plural to $link_and_ref";
 
 	for (@{$self->get_channels}) {
 		$self->privmsg( $_ => $initial_msg );
@@ -195,13 +204,17 @@ event irc_public => sub {
 	my $nick = lc($self->nick);
 	if ( $what =~ /^$nick(\?|!|:|,)(|\s|$)/i) {
 		$what =~ s/^$nick\??:?!?(\s|$)?//i;
-		&myself($self,$nickstr,$channels->[0],$what);
+		$self->myself($nickstr,$channels->[0],$what);
         return;
 	}
 	if ( $what =~ /^(!|\?)\s/ ) {
 		$what =~ s/^(!|\?)\s//;
-		&myself($self,$nickstr,$channels->[0],$what);
+		$self->myself($nickstr,$channels->[0],$what);
 	}
+    if ( $what =~ /^\.(\w+)$/ ) {
+		$what =~ s/^\.//;
+		$self->linkgrabber($nickstr,$channels->[0],$what);
+    }
 	if ($msg =~ /^!yesorno /i) {
 		my $zci = $self->ddg->zci("yes or no");
 		for (@{$channels}) {
@@ -314,6 +327,55 @@ sub myself {
 		$self->privmsg( $channel => "doh!" );
 		#p($_);
 	}
+};
+
+sub linkgrabber {
+	my ( $self, $nickstr, $channel, $msg ) = @_;
+	my ( $nick ) = split /!/, $nickstr;
+	$self->debug($nick.' asked for "'.$msg.'" on '.$channel);
+    my $reply;
+
+	my %links = (
+		"goodies" 	=> "https://duckduckgo.com/goodies.html",
+		"bang" 		=> "https://duckduckgo.com/bang.html",
+		"newbang" 	=> "https://duckduckgo.com/newbang.html",
+		"about" 	=> "https://duckduckgo.com/about.html",
+		"settings" 	=> "https://duckduckgo.com/settings.html",
+		"privacy" 	=> "https://duckduckgo.com/privacy.html",
+		"dontbubble"=> "http://dontbubble.us",
+		"donttrack"	=> "http://donttrack.us",
+		"help" 		=> "https://help.duckduckgo.com",
+		"feedback"	=> "https://duckduckgo.com/feedback.html",
+		"community"	=> "https://dukgo.com",
+		"forum"		=> "https://duck.co",
+		"spread"	=> "https://duckduckgo.com/spread.html",
+		"twitter"	=> "https://twitter.com/duckduckgo",
+		"facebook"	=> "https://facebook.com/duckduckgo",
+		"stickers"	=> "https://duckduckgo.com/stickers.html & https://www.stickermule.com/duckduckgo",
+		"shorturl"	=> "http://ddg.gg",
+		"github"	=> "https://github.com/duckduckgo",
+		"store"		=> "http://cafepress.com/duckduckgo",
+		"reddit"	=> "http://www.reddit.com/r/duckduckgo",
+		"identica"	=> "https://identi.ca/duckduckgo",
+		"diaspora"	=> "https://joindiaspora.com/u/duckduckgo",
+		"duckpan"	=> "http://duckpan.org",
+        "homepage"  => "https://duckduckgo.com",
+        "api"       => "https://api.duckduckgo.com/",
+		);
+
+	try {
+		if ( exists $links{$msg} ) {
+			$reply = $links{$msg};
+		}
+		else {
+			$reply = "I don't have a link to \"$msg\"";
+		}
+		$reply = decode_entities($reply);
+		$self->privmsg( $channel => "$nick: ".$reply );
+	} catch {
+		$self->privmsg( $channel => "doh!" );
+	}
+
 };
 
 event say_later => sub {
