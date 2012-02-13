@@ -363,6 +363,15 @@ sub linkgrabber {
         "home"      => "https://duckduckgo.com/",
         "h"         => "https://duckduckgo.com/",
         "api"       => "https://api.duckduckgo.com/",
+        "traffic"   => "https://duckduckgo.com/traffic.html",
+        "browser"   => "http://help.duckduckgo.com/customer/portal/articles/216425-browsers",
+        "addsite"   => "http://help.duckduckgo.com/customer/portal/articles/216407",
+        "addad"     => "http://help.duckduckgo.com/customer/portal/articles/216405",
+        "syntax"    => "http://help.duckduckgo.com/customer/portal/articles/300304-syntax",
+		"image"		=> "http://help.duckduckgo.com/customer/portal/articles/215615-images",
+		"email"		=> "http://help.duckduckgo.com/customer/portal/articles/215614-email",
+        "soul"      => "http://www.youtube.com/watch?v=XvwK-3cQ6gE",
+        "die"       => "http://www.youtube.com/watch?v=K5sANHYp_IQ",
 		);
 
 	try {
