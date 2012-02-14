@@ -18,6 +18,7 @@ use File::Spec;
 use Try::Tiny;
 use HTML::Entities;
 use JSON::XS;
+use String::Trim;
 use POE::Component::IRC::Plugin::SigFail;
 use POE::Component::WWW::Shorten;
 use POE::Component::FastCGI;
@@ -211,9 +212,10 @@ event irc_public => sub {
 		$what =~ s/^(!|\?)\s//;
 		$self->myself($nickstr,$channels->[0],$what);
 	}
-    if ( $what =~ /^\.(\w+)$/ ) {
-		$what =~ s/^\.//;
-		$self->linkgrabber($nickstr,$channels->[0],$what);
+    if ( $what =~ /^\.(\w+)(\s+[^\s]+)?$/ ) {
+		my $name = $1;
+        my $target = trim($2);
+		$self->linkgrabber($nickstr,$channels->[0],$name,$target);
     }
 	if ($msg =~ /^!yesorno /i) {
 		my $zci = $self->ddg->zci("yes or no");
@@ -330,10 +332,12 @@ sub myself {
 };
 
 sub linkgrabber {
-	my ( $self, $nickstr, $channel, $msg ) = @_;
+	my ( $self, $nickstr, $channel, $msg, $target ) = @_;
 	my ( $nick ) = split /!/, $nickstr;
 	$self->debug($nick.' asked for "'.$msg.'" on '.$channel);
     my $reply;
+
+	$target = ($target) ? $target : $nick;
 
 	my %links = (
 		"goodies" 	=> "https://duckduckgo.com/goodies.html",
@@ -360,8 +364,8 @@ sub linkgrabber {
 		"diaspora"	=> "https://joindiaspora.com/u/duckduckgo",
 		"duckpan"	=> "http://duckpan.org/",
         "homepage"  => "https://duckduckgo.com/",
-        "home"      => "https://duckduckgo.com/",
-        "h"         => "https://duckduckgo.com/",
+        "home"      => \"homepage",
+        "h"         => \"homepage",
         "api"       => "https://api.duckduckgo.com/",
         "traffic"   => "https://duckduckgo.com/traffic.html",
         "browser"   => "http://help.duckduckgo.com/customer/portal/articles/216425-browsers",
@@ -376,13 +380,14 @@ sub linkgrabber {
 
 	try {
 		if ( exists $links{$msg} ) {
-			$reply = $links{$msg};
+			my $value = $links{$msg};
+            $reply = ref $value eq 'SCALAR' ? $links{$$value} : $value;
 		}
 		else {
 			$reply = "I don't have a link to \"$msg\"";
 		}
 		$reply = decode_entities($reply);
-		$self->privmsg( $channel => "$nick: ".$reply );
+		$self->privmsg( $channel => "$target: ".$reply );
 	} catch {
 		$self->privmsg( $channel => "doh!" );
 	}
