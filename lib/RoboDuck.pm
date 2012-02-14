@@ -170,7 +170,7 @@ sub received_git_commit {
 	my $initial_msg = "[git] $pusher_name pushed $commit_count commit$plural to $link_and_ref";
 
 	for (@{$self->get_channels}) {
-		$self->privmsg( $_ => $initial_msg );
+		$self->privmsg( $_ => $initial_msg ) unless ($commit_count == 0);
 	}
 
 	for (@{$commits}) {
