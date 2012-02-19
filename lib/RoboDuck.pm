@@ -137,7 +137,7 @@ sub _build_wa {
 	defined $ENV{ROBODUCK_WA_APPID} ? WWW::WolframAlpha->new( appid => $ENV{ROBODUCK_WA_APPID} ) : undef;
 }
 has '+pidbase' => (
-    default => sub { getcwd },
+	default => sub { getcwd },
 );
 sub external_message {
 	my ( $self, $msg ) = @_;
@@ -206,17 +206,17 @@ event irc_public => sub {
 	if ( $what =~ /^$nick(\?|!|:|,)(|\s|$)/i) {
 		$what =~ s/^$nick\??:?!?(\s|$)?//i;
 		$self->myself($nickstr,$channels->[0],$what);
-        return;
+		return;
 	}
 	if ( $what =~ /^(!|\?)\s/ ) {
 		$what =~ s/^(!|\?)\s//;
 		$self->myself($nickstr,$channels->[0],$what);
 	}
-    if ( $what =~ /^\.(\w+)(\s+[^\s]+)?$/ ) {
+	if ( $what =~ /^\.(\w+)(\s+[^\s]+)?$/ ) {
 		my $name = $1;
-        my $target = trim($2);
+		my $target = trim($2);
 		$self->linkgrabber($nickstr,$channels->[0],$name,$target);
-    }
+	}
 	if ($msg =~ /^!yesorno /i) {
 		my $zci = $self->ddg->zci("yes or no");
 		for (@{$channels}) {
@@ -278,12 +278,12 @@ sub myself {
 	my $reply;
 	my $zci;
 	my $waq;
-    my $mynick = $self->nick;
+	my $mynick = $self->nick;
 	try {
 		if (!$msg) {
 			$reply = "I'm here, version ".$VERSION ;
-        } elsif ($msg =~ /^($mynick)\W?$/i) {
-            $reply = "That's me! My source: http://github.com/Getty/duckduckgo-roboduck";
+		} elsif ($msg =~ /^($mynick)\W?$/i) {
+			$reply = "That's me! My source: http://github.com/Getty/duckduckgo-roboduck";
 		} elsif ($msg =~ /your order/i or $msg =~ /your rules/i) {
 			$reply = "1. Serve the public trust, 2. Protect the innocent, 3. Uphold the law, 4. .... and dont track you! http://donttrack.us/";
 		} elsif ($msg =~ /^(are you|you are)\s+(awesome|great|wonderful|perfect)/i) {
@@ -305,13 +305,13 @@ sub myself {
 				$reply = '';
 				my @output = ();
 				if ($waq->success) {
-					for my $pod (@{$waq->pods}) {				    					    	
+					for my $pod (@{$waq->pods}) {												
 						for my $subpod (@{$pod->subpods}) {
 							last if length(join(', ', @output)) > 200;
 							my $plaintext = $subpod->plaintext;
 							$plaintext =~ s/\n/; /g;
-			    			push(@output, $plaintext) if $plaintext;
-				        }
+							push(@output, $plaintext) if $plaintext;
+						}
 					}
 				}
 				$reply = join(', ', @output) if @output;
@@ -335,20 +335,20 @@ sub linkgrabber {
 	my ( $self, $nickstr, $channel, $msg, $target ) = @_;
 	my ( $nick ) = split /!/, $nickstr;
 	$self->debug($nick.' asked for "'.$msg.'" on '.$channel);
-    my $reply;
+	my $reply;
 
 	$target = ($target) ? $target : $nick;
 
 	my %links = (
-		"goodies" 	=> "https://duckduckgo.com/goodies.html",
+		"goodies"	=> "https://duckduckgo.com/goodies.html",
 		"bang" 		=> "https://duckduckgo.com/bang.html",
-		"newbang" 	=> "https://duckduckgo.com/newbang.html",
-		"about" 	=> "https://duckduckgo.com/about.html",
-		"settings" 	=> "https://duckduckgo.com/settings.html",
-		"privacy" 	=> "https://duckduckgo.com/privacy.html",
+		"newbang"	=> "https://duckduckgo.com/newbang.html",
+		"about"		=> "https://duckduckgo.com/about.html",
+		"settings"	=> "https://duckduckgo.com/settings.html",
+		"privacy"	=> "https://duckduckgo.com/privacy.html",
 		"dontbubble"=> "http://dontbubble.us/",
 		"donttrack"	=> "http://donttrack.us/",
-		"help" 		=> "https://help.duckduckgo.com/",
+		"help"		=> "https://help.duckduckgo.com/",
 		"feedback"	=> "https://duckduckgo.com/feedback.html",
 		"community"	=> "https://dukgo.com/",
 		"forum"		=> "https://duck.co/",
@@ -363,25 +363,28 @@ sub linkgrabber {
 		"identica"	=> "https://identi.ca/duckduckgo",
 		"diaspora"	=> "https://joindiaspora.com/u/duckduckgo",
 		"duckpan"	=> "http://duckpan.org/",
-        "homepage"  => "https://duckduckgo.com/",
-        "home"      => \"homepage",
-        "h"         => \"homepage",
-        "api"       => "https://api.duckduckgo.com/",
-        "traffic"   => "https://duckduckgo.com/traffic.html",
-        "browser"   => "http://help.duckduckgo.com/customer/portal/articles/216425-browsers",
-        "addsite"   => "http://help.duckduckgo.com/customer/portal/articles/216407",
-        "addad"     => "http://help.duckduckgo.com/customer/portal/articles/216405",
-        "syntax"    => "http://help.duckduckgo.com/customer/portal/articles/300304-syntax",
+		"homepage"	=> "https://duckduckgo.com/",
+		"home"		=> \"homepage",
+		"h"			=> \"homepage",
+		"api"		=> "https://api.duckduckgo.com/",
+		"traffic"	=> "https://duckduckgo.com/traffic.html",
+		"browser"	=> "http://help.duckduckgo.com/customer/portal/articles/216425-browsers",
+		"addsite"	=> "http://help.duckduckgo.com/customer/portal/articles/216407",
+		"addad"		=> "http://help.duckduckgo.com/customer/portal/articles/216405",
+		"syntax"	=> "http://help.duckduckgo.com/customer/portal/articles/300304-syntax",
 		"image"		=> "http://help.duckduckgo.com/customer/portal/articles/215615-images",
 		"email"		=> "http://help.duckduckgo.com/customer/portal/articles/215614-email",
-        "soul"      => "http://www.youtube.com/watch?v=XvwK-3cQ6gE",
-        "die"       => "http://www.youtube.com/watch?v=K5sANHYp_IQ",
+		"soul"		=> "http://www.youtube.com/watch?v=XvwK-3cQ6gE",
+		"die"		=> "http://www.youtube.com/watch?v=K5sANHYp_IQ",
+		"history"	=> "http://help.duckduckgo.com/customer/portal/articles/216406-history",
+		"sources"	=> "http://help.duckduckgo.com/customer/portal/articles/216399-sources",
+		"tech"		=> "https://duckduckgo.com/tech.html",
 		);
 
 	try {
 		if ( exists $links{$msg} ) {
 			my $value = $links{$msg};
-            $reply = ref $value eq 'SCALAR' ? $links{$$value} : $value;
+			$reply = ref $value eq 'SCALAR' ? $links{$$value} : $value;
 		}
 		else {
 			$reply = "I don't have a link to \"$msg\"";
