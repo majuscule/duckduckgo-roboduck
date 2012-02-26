@@ -1,10 +1,7 @@
 package RoboDuck::Plugin::DuckDuckGo;
 use 5.10.0;
-our $VERSION = '0.01';
 use Moses::Plugin;
 use WWW::DuckDuckGo;
-use POE::Component::IRC::Plugin::SigFail;
-use HTML::Entities;
 
 has ddg => (
     isa     => 'WWW::DuckDuckGo',
@@ -15,22 +12,27 @@ has ddg => (
 );
 
 sub _build_ddg {
-    WWW::DuckDuckGo->new( http_agent_name => __PACKAGE__ . '/' . $VERSION );
+    WWW::DuckDuckGo->new( http_agent_name => __PACKAGE__ . '/' . "0.0development" );
 }
 
+sub S_say_later {
+	my ( $self, $channel, $msg ) = @_[ OBJECT, ARG0, ARG1 ];
+	$self->privmsg( $channel => $msg );
+    return PCI_EAT_NONE;
+};
 
 #
 # Blatantly Stolen from RoboDuck (Getty++)
 #
 
-sub S_public {
+sub S_bot_addressed {
     my ( $self, $irc, $nickstring, $channels, $message ) = @_;
     my ( $nick ) = split /!/, $$nickstring;
     my $mynick = $self->nick;
     my $reply;
 
     given ($$message) {
-        when (/^(?:$mynick|!ddg)\W?\s*(.*)?$/) {
+        when (/^(.+)$/i) {
             my $res = $self->search($1);
             warn $res->heading;
             given ($res) {
@@ -50,12 +52,32 @@ sub S_public {
                 }
                 default {
                     return PCI_EAT_NONE; # pass it to other plugins and let them reply if they fail
+#return PCI_EAT_ALL;
                 }
             }
             if ($reply) { $self->privmsg( $_ => "$nick: ".$reply ) for @$$channels; }
             return PCI_EAT_ALL;
         }
         default { return PCI_EAT_NONE; };
+    }
+}
+
+sub S_public {
+    my ( $self, $irc, $nickstring, $channels, $message ) = @_;
+    my ( $nick ) = split /!/, $$nickstring;
+    my $mynick = $self->nick;
+
+    given ($$message) {
+        when (/^!yesorno/i) {
+            my $zci = $self->search("yes or no");
+            $self->privmsg( $_ => "The almighty DuckOracle says..." ) for @$$channels;
+            if ($zci->answer =~ /^no /) {
+                $self->bot->delay_add( say_later => 2, $_, "... no" ) for @$$channels;
+            } else {
+                $self->bot->delay_add( say_later => 2, $_, "... yes" ) for @$$channels;
+            }
+            return PCI_EAT_ALL;
+        }
     }
 }
 

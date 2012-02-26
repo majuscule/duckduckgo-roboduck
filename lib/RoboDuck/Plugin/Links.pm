@@ -1,6 +1,5 @@
 package RoboDuck::Plugin::Links;
 use 5.10.0;
-our $VERSION = '0.01';
 use Moses::Plugin;
 use String::Trim;
 use warnings; use strict;
@@ -45,6 +44,7 @@ my %links = (
     "history"	=> "http://help.duckduckgo.com/customer/portal/articles/216406-history",
     "sources"	=> "http://help.duckduckgo.com/customer/portal/articles/216399-sources",
     "tech"		=> "https://duckduckgo.com/tech.html",
+    "pii"       => "http://www.gabrielweinberg.com/blog/2010/11/how-to-not-log-personally-identifiable-information.html",
 );
 
 sub give_link {
@@ -65,7 +65,9 @@ sub S_public {
     my $mynick = $self->nick;
     my $reply;
 
-    given ($$message) {
+    $message = lc($$message);
+
+    given ($message) {
         when (/^\.(\w+)(\s+[^\s]+)?$/) {
             my $target = trim($2);
             $target = ($target) ? $target : $nick;

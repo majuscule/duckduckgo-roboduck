@@ -1,12 +1,8 @@
 package RoboDuck::Plugin::WolframAlpha;
 use 5.10.0;
-our $VERSION = '0.01';
 use Moses::Plugin;
 use WWW::WolframAlpha;
 use Moose::Util::TypeConstraints;
-use POE::Component::IRC::Plugin::SigFail;
-use HTML::Entities;
-use warnings; use strict;
 
 class_type 'WWW::WolframAlpha';
 has wa => (
@@ -21,14 +17,14 @@ sub _build_wa {
     defined $ENV{ROBODUCK_WA_APPID} ? WWW::WolframAlpha->new( appid => $ENV{ROBODUCK_WA_APPID}, ) : undef;
 }
 
-sub S_public {
+sub S_bot_addressed {
     my ( $self, $irc, $nickstring, $channels, $message ) = @_;
     my ( $nick ) = split /!/, $$nickstring;
     my $mynick = $self->nick;
     my $reply;
 
     given ($$message) {
-        when (/^(?:$mynick|!wa)\W?\s*(.*)/) {
+        when (/^(.+)/i) {
             warn $1;
             my $res = $self->search( input => $1 ) if $self->wa;
             warn "WolframAlpha APPID not set, or something's borked" unless $self->wa;
@@ -44,12 +40,12 @@ sub S_public {
                         }
                     }
                 }
-                $reply = (@output) ? join(', ', @output) : '<irc_sigfail:FAIL>';
-                $reply = decode_entities($reply);
-                $self->privmsg( $_ => "$nick: ".$reply ) for @$$channels;
+                $reply = join(', ', @output);
+                if (@output) { $self->privmsg( $_ => "$nick: ".$reply ) for @$$channels; }
+                return PCI_EAT_ALL if @output;
             }
         }
-        return PCI_EAT_ALL;
+        return PCI_EAT_NONE;
     }
 }
 
