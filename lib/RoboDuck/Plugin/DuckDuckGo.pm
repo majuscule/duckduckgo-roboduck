@@ -68,7 +68,7 @@ sub S_public {
     my $mynick = $self->nick;
 
     given ($$message) {
-        when (/^!yesorno/i) {
+        when (/^(o|oh)?\W*(almighty|mighty|great|powerful)?\s*(duck)?oracle\W/i) {
             my $zci = $self->search("yes or no");
             $self->privmsg( $_ => "The almighty DuckOracle says..." ) for @$$channels;
             if ($zci->answer =~ /^no /) {

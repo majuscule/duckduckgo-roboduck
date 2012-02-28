@@ -31,6 +31,7 @@ plugins
   DuckDuckGo => "RoboDuck::Plugin::DuckDuckGo",
   WolframAlpha => "RoboDuck::Plugin::WolframAlpha",
   Links => "RoboDuck::Plugin::Links",
+  YouTube => "RoboDuck::Plugin::YouTube",
   'Karma' => POE::Component::IRC::Plugin::Karma->new(
     extrastats => 1,
     sqlite => File::Spec->catfile( getcwd(), 'karma_stats.db' ),),
@@ -42,6 +43,7 @@ plugins
     trigger   => qw|https?://|,
     debug => 0,
    ),
+  Bangs => "RoboDuck::Plugin::Bangs",
   #AIML => "RoboDuck::Plugin::AIML",
   ;
 
