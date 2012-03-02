@@ -45,6 +45,7 @@ my %links = (
     "sources"   => "http://help.duckduckgo.com/customer/portal/articles/216399-sources",
     "tech"      => "https://duckduckgo.com/tech.html",
     "pii"       => "http://www.gabrielweinberg.com/blog/2010/11/how-to-not-log-personally-identifiable-information.html",
+    "searchbox" => "https://duckduckgo.com/search_box.html",
 );
 
 sub give_link {

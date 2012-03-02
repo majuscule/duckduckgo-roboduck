@@ -47,6 +47,9 @@ sub S_public {
         when (/(\W|^)(bear|cycles?)(\W|$)/) {
             $reply = "http://www.youtube.com/watch?v=-0Xa4bHcJu8";
         }
+        when (/(\W|^)dog(g|s)?(y|ies)?|pupp(y|ies)/) {
+            $reply = "Woof. http://omfgdogs.com/";
+        }
     }
     if ($reply) { 
         $self->privmsg( $_ => $reply ) for @$$channels;

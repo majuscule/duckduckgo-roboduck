@@ -32,6 +32,7 @@ plugins
   WolframAlpha => "RoboDuck::Plugin::WolframAlpha",
   Links => "RoboDuck::Plugin::Links",
   YouTube => "RoboDuck::Plugin::YouTube",
+  MetaCPAN => "RoboDuck::Plugin::MetaCPAN",
   'Karma' => POE::Component::IRC::Plugin::Karma->new(
     extrastats => 1,
     sqlite => File::Spec->catfile( getcwd(), 'karma_stats.db' ),),
