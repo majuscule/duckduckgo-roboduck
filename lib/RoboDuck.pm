@@ -70,5 +70,10 @@ event say_later => sub {
     $self->privmsg( $channel => $msg );
 };
 
+event irc_001 => sub {
+    my $self = $_[ OBJECT ];
+    $self->privmsg('NickServ' => 'identify '.$ENV{ROBODUCK_NICKSERV_PASSWORD}) if defined $ENV{ROBODUCK_NICKSERV_PASSWORD} && $self->server_name =~ /\.freenode\.net$/;
+};
+
 1;
 __END__
