@@ -2,14 +2,13 @@ package RoboDuck::Plugin::Links;
 use 5.10.0;
 use Moses::Plugin;
 use String::Trim;
-use warnings; use strict;
 
 my %links = (
-    "goodies"   => "https://duckduckgo.com/goodies.html",
+    "goodie"   => "https://duckduckgo.com/goodies.html",
     "bang"      => "https://duckduckgo.com/bang.html",
     "newbang"   => "https://duckduckgo.com/newbang.html",
     "about"     => "https://duckduckgo.com/about.html",
-    "settings"  => "https://duckduckgo.com/settings.html",
+    "setting"  => "https://duckduckgo.com/settings.html",
     "privacy"   => "https://duckduckgo.com/privacy.html",
     "dontbubble"=> "http://dontbubble.us/",
     "donttrack" => "http://donttrack.us/",
@@ -20,7 +19,7 @@ my %links = (
     "spread"    => "https://duckduckgo.com/spread.html",
     "twitter"   => "https://twitter.com/duckduckgo",
     "facebook"  => "https://facebook.com/duckduckgo",
-    "stickers"  => "https://duckduckgo.com/stickers.html & https://www.stickermule.com/duckduckgo",
+    "sticker"  => "https://duckduckgo.com/stickers.html & https://www.stickermule.com/duckduckgo",
     "shorturl"  => "http://ddg.gg/",
     "github"    => "https://github.com/duckduckgo",
     "store"     => "http://cafepress.com/duckduckgo",
@@ -42,15 +41,19 @@ my %links = (
     "soul"      => "http://www.youtube.com/watch?v=XvwK-3cQ6gE",
     "die"       => "http://www.youtube.com/watch?v=K5sANHYp_IQ",
     "history"   => "http://help.duckduckgo.com/customer/portal/articles/216406-history",
-    "sources"   => "http://help.duckduckgo.com/customer/portal/articles/216399-sources",
+    "source"   => "http://help.duckduckgo.com/customer/portal/articles/216399-sources",
     "tech"      => "https://duckduckgo.com/tech.html",
     "pii"       => "http://www.gabrielweinberg.com/blog/2010/11/how-to-not-log-personally-identifiable-information.html",
     "searchbox" => "https://duckduckgo.com/search_box.html",
+    "spam"      => "http://help.duckduckgo.com/customer/portal/articles/215611-spam",
 );
 
 sub give_link {
     my ( $self, $channels, $target, $key ) = @_;
     my $reply;
+    $key =~ s/[-_']//g;
+    $key =~ s/s$//;
+
     if ( exists $links{$key} ) {
         my $value = $links{$key};
         $reply = ref $value eq 'SCALAR' ? $links{$$value} : $value;
