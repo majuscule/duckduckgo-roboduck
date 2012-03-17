@@ -6,14 +6,16 @@ use Moses;
 use namespace::autoclean;
 use Cwd qw(getcwd);
 use HTML::Entities;
+use JSON::XS;
+use DDP;
 
 our $VERSION ||= '0.0development';
 
 use RoboDuck::Plugin::SigFail;
+use RoboDuck::Plugin::GetPageTitle;
 
 # External plugins
 use POE::Component::IRC::Plugin::Karma;
-use POE::Component::IRC::Plugin::WWW::GetPageTitle;
 
 with qw(MooseX::Daemonize);
 
@@ -33,18 +35,19 @@ plugins
   Links => "RoboDuck::Plugin::Links",
   YouTube => "RoboDuck::Plugin::YouTube",
   MetaCPAN => "RoboDuck::Plugin::MetaCPAN",
+  CommitHook => "RoboDuck::Plugin::CommitHook",
+  Bangs => "RoboDuck::Plugin::Bangs",
   'Karma' => POE::Component::IRC::Plugin::Karma->new(
     extrastats => 1,
     sqlite => File::Spec->catfile( getcwd(), 'karma_stats.db' ),),
   'SigFail' => RoboDuck::Plugin::SigFail->new,
-  'Title' => POE::Component::IRC::Plugin::WWW::GetPageTitle->new(
+  'Title' => RoboDuck::Plugin::GetPageTitle->new(
     max_uris  => 2,
     find_uris => 1,
     addressed => 0,
-    trigger   => qw|https?://|,
+    trigger   => qr{(^|\W)https?://},
     debug => 0,
    ),
-  Bangs => "RoboDuck::Plugin::Bangs",
   #AIML => "RoboDuck::Plugin::AIML",
   ;
 
@@ -68,6 +71,17 @@ event irc_bot_addressed => sub {
 event say_later => sub {
     my ( $self, $channel, $msg ) = @_[ OBJECT, ARG0, ARG1 ];
     $self->privmsg( $channel => $msg );
+};
+
+event announce_shortened_url => sub {
+    my ( $self, $returned ) = @_[ OBJECT, ARG0 ];
+
+    my ( $message, $url ) = @{$returned}{ '_message', 'short' };
+    $message =~ s/SHORT_URL/$url/;
+
+    for (@{$self->get_channels}) {
+        $self->privmsg( $_ => $message );
+    }
 };
 
 event irc_001 => sub {

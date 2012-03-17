@@ -21,9 +21,6 @@ sub S_say_later {
     return PCI_EAT_NONE;
 };
 
-#
-# Blatantly Stolen from RoboDuck (Getty++)
-#
 
 sub S_bot_addressed {
     my ( $self, $irc, $nickstring, $channels, $message ) = @_;

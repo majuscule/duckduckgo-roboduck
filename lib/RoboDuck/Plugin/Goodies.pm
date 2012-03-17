@@ -1,6 +1,20 @@
 package RoboDuck::Plugin::Goodies;
 use 5.10.0;
 use Moses::Plugin;
+use DDP;
+
+my @gfy = (
+    'http://j.mp/ymkOjY',
+    'http://j.mp/yj4z82',
+    'http://j.mp/wzVRrS',
+    'http://j.mp/xMm27j',
+    'http://j.mp/w5AB9K',
+    'http://j.mp/w2nJvi',
+    'http://j.mp/w4J9xD',
+    'http://j.mp/wcKSwv',
+    'http://j.mp/xS2k21',
+    'http://j.mp/xL2nw1',
+);
 
 sub S_bot_addressed {
     my ( $self, $irc, $nickstring, $channels, $message ) = @_;
@@ -55,6 +69,28 @@ sub S_public {
         $self->privmsg( $_ => $reply ) for @$$channels;
         return PCI_EAT_ALL;
     }
+}
+
+sub S_ctcp_action {
+    my ( $self, $irc, $nickstring, $receiver, $message ) = @_;
+    my ( $nick ) = split /!/, $$nickstring;
+    my $mynick = $self->nick;
+    my $target = ( $$receiver->[0] eq $mynick ) ? $nick : $$receiver->[0];
+    my $reply;
+
+    given ($$message) {
+        when (/^(pet|cuddle|pat|rub|love)s\s+$mynick(?:\s+\W+)?$/i) {
+            $reply = "purrs";
+        }
+        when (/^(slap|kick|hit|punche|whack|hate)s\s+$mynick/i) {
+            $reply = "cries";
+        }
+        when (/^(\w+\s)?(fuck|penetrate|rape|enter|touche|violate|terminate)s\s+$mynick/i) {
+            $self->privmsg( $target => "$nick: ".$gfy[rand(@gfy)] );
+        }
+    }
+    return PCI_EAT_NONE unless $reply;
+    $irc->yield( ctcp => $target => 'ACTION '.$reply );
 }
 
 1;
