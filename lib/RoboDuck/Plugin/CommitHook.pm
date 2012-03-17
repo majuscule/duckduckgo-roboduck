@@ -52,8 +52,6 @@ sub _build_shorten {
     );
 }
 
-
- 
 sub gh_commit {
     my ( $self, $request ) = @_;
     my $response = $request->make_response;
@@ -99,7 +97,7 @@ sub received_git_commit {
         $self->shorten->shorten({
                 url => $url,
                 event => 'announce_shortened_url',
-                session => $self->get_session_id,
+                session => $self->{bot}->get_session_id,
                 _message => $commit_message
             });
     }
