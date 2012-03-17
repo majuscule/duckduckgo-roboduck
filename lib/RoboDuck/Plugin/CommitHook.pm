@@ -4,7 +4,6 @@ use Moses::Plugin;
 use POE::Component::WWW::Shorten;
 use POE::Component::FastCGI;
 use JSON::XS;
-use DDP;
 
 sub S_connected {
     my $self = shift;

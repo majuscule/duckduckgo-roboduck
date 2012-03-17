@@ -1,6 +1,5 @@
 package RoboDuck::Plugin::GetPageTitle;
 use Moose;
-use DDP;
 
 extends 'POE::Component::IRC::Plugin::WWW::GetPageTitle';
 

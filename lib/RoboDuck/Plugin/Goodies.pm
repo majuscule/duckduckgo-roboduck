@@ -1,7 +1,6 @@
 package RoboDuck::Plugin::Goodies;
 use 5.10.0;
 use Moses::Plugin;
-use DDP;
 
 my @gfy = (
     'http://j.mp/ymkOjY',

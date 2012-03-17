@@ -7,7 +7,6 @@ use namespace::autoclean;
 use Cwd qw(getcwd);
 use HTML::Entities;
 use JSON::XS;
-use DDP;
 
 our $VERSION ||= '0.0development';
 
