@@ -1,4 +1,5 @@
 package RoboDuck;
+# ABSTRACT: The IRC bot of the #duckduckgo Channel
 use 5.10.0;
 
 sub POE::Kernel::USE_SIGCHLD () { 1 }
