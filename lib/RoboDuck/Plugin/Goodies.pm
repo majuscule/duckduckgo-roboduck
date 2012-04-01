@@ -22,7 +22,7 @@ sub S_bot_addressed {
     my $reply;
 
     given ($$message) {
-        when (/^\W*$/i) {
+        when (/^\W?$/i) {
             $reply = "I'm here, version ".$RoboDuck::VERSION;
         }
         when (/^.*your\s+(order|rule)/) {
@@ -78,7 +78,7 @@ sub S_ctcp_action {
     my $reply;
 
     given ($$message) {
-        when (/^(pet|cuddle|pat|rub|love)s\s+$mynick(?:\s+\W+)?$/i) {
+        when (/^(pet|cuddle|pat|rub|love|hug)s\s+$mynick(?:\s+\W+)?$/i) {
             $reply = "purrs";
         }
         when (/^(slap|kick|hit|punche|whack|hate)s\s+$mynick/i) {

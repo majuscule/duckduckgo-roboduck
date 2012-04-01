@@ -2,6 +2,7 @@ package RoboDuck::Plugin::DuckDuckGo;
 use 5.10.0;
 use Moses::Plugin;
 use WWW::DuckDuckGo;
+use DDP;
 
 has ddg => (
     isa     => 'WWW::DuckDuckGo',
@@ -31,6 +32,7 @@ sub S_bot_addressed {
     given ($$message) {
         when (/^(.+)$/i) {
             my $res = $self->search($1);
+            p($res);
             warn $res->heading;
             given ($res) {
                 when ( $_->has_answer ) {
@@ -43,6 +45,10 @@ sub S_bot_addressed {
                     $reply = $res->abstract_text;
                     $reply .= " (".$res->abstract_source.")" if $res->has_abstract_source;
                     $reply .= " ".$res->abstract_url if $res->has_abstract_url;
+                }
+                when ( $_->default_related_topics ) {
+                    $reply = $_->default_related_topics->[0]->text." ".$_->default_related_topics->[0]->first_url;
+                    $reply .=  " (disambig: ".$res->abstract_url." )" if $res->has_abstract_url;
                 }
                 when ( $_->has_heading ) {
                     $reply = $res->heading;
