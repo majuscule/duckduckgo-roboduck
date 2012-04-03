@@ -35,7 +35,7 @@ sub S_public {
     my ( $nick ) = split /!/, $$nickstring;
 
     given ($$message) {
-        when (/($RE{URI}{HTTP}{ -scheme => qr\/https?\/ }.*)/) {
+        when (/($RE{URI}{HTTP}{ -scheme => qr\/https?\/ })/) {
         my $desc = $self->get_description($1);
 
 #           unless ($desc) { # get the title of normal pages
