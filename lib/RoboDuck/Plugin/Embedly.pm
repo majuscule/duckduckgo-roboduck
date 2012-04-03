@@ -3,7 +3,6 @@ use 5.10.1;
 use Moses::Plugin;
 use WebService::Embedly;
 use Moose::Util::TypeConstraints;
-use DDP;
 use Regexp::Common 'URI';
 
 class_type 'WebService::Embedly';

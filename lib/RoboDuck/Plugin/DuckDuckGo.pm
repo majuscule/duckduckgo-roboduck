@@ -2,7 +2,6 @@ package RoboDuck::Plugin::DuckDuckGo;
 use 5.10.0;
 use Moses::Plugin;
 use WWW::DuckDuckGo;
-use DDP;
 
 has ddg => (
     isa     => 'WWW::DuckDuckGo',
