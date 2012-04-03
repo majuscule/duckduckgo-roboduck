@@ -13,7 +13,7 @@ sub S_public {
     my $reply;
     
     given ($$message) {
-        when (/^(?:yt|youtube)\s+(.+)/) {
+        when (/^!(?:yt|youtube)\s+(.+)/) {
             $yt->query->q($1)->limit(1,0);
             my $videos = $yt->search_video();
             $reply = $videos->[0]->title if @$videos;

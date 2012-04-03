@@ -3,7 +3,7 @@ use 5.10.0;
 use Moses::Plugin;
 use URI::Escape;
 
-sub S_public {
+sub S_bot_addressed {
     my ( $self, $irc, $nickstring, $channels, $message ) = @_;
     my ( $nick ) = split /!/, $$nickstring;
     my $mynick = $self->nick;

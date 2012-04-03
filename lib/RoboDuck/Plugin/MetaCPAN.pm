@@ -25,7 +25,7 @@ sub S_public {
     my $reply;
 
     given ($$message) {
-        when (/^m?cpan\s+(.+)$/) {
+        when (/^!m?cpan\s+(.+)$/) {
             try {
                 my $query = $1;
                 $query =~ s/::/-/g;

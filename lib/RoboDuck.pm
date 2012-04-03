@@ -27,27 +27,29 @@ server $ENV{USER} eq 'roboduck' ? 'irc.freenode.net' : 'irc.perl.org';
 nickname $ENV{ROBODUCK_NICKNAME} || ( $ENV{USER} eq 'roboduck' ? 'RoboDuck' : 'RoboDuckDev' );
 channels '#duckduckgo';
 username 'duckduckgo';
+owner '*!*@dukgo.com';
 
 plugins
   Goodies => "RoboDuck::Plugin::Goodies",
+  Bangs => "RoboDuck::Plugin::Bangs",
   DuckDuckGo => "RoboDuck::Plugin::DuckDuckGo",
   WolframAlpha => "RoboDuck::Plugin::WolframAlpha",
   Links => "RoboDuck::Plugin::Links",
   YouTube => "RoboDuck::Plugin::YouTube",
   MetaCPAN => "RoboDuck::Plugin::MetaCPAN",
   CommitHook => "RoboDuck::Plugin::CommitHook",
-  Bangs => "RoboDuck::Plugin::Bangs",
+  Embedly => "RoboDuck::Plugin::Embedly",
+#  GithubFeed => "RoboDuck::Plugin::GithubFeed",
   'Karma' => POE::Component::IRC::Plugin::Karma->new(
     extrastats => 1,
     sqlite => File::Spec->catfile( getcwd(), 'karma_stats.db' ),),
   'SigFail' => RoboDuck::Plugin::SigFail->new,
-  'Title' => RoboDuck::Plugin::GetPageTitle->new(
-    max_uris  => 2,
-    find_uris => 1,
-    addressed => 0,
-    trigger   => qr{(^|\W)https?://},
-    debug => 0,
-   ),
+#'Title' => RoboDuck::Plugin::GetPageTitle->new(
+#   max_uris  => 2,
+#   find_uris => 0,
+#   addressed => 0,
+#   debug => 0,
+# ),
   #AIML => "RoboDuck::Plugin::AIML",
   ;
 
@@ -83,6 +85,11 @@ event announce_shortened_url => sub {
         $self->privmsg( $_ => $message );
     }
 };
+
+#event gh_feed_entry => sub {
+#    my ( $self, $feed, $entry ) = @_;
+#    use DDP; p($feed);p($entry);
+#};
 
 event irc_001 => sub {
     my $self = $_[ OBJECT ];

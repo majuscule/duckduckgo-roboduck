@@ -32,7 +32,6 @@ sub S_bot_addressed {
     given ($$message) {
         when (/^(.+)$/i) {
             my $res = $self->search($1);
-            p($res);
             warn $res->heading;
             given ($res) {
                 when ( $_->has_answer ) {
