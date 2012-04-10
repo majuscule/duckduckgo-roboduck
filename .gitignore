@@ -2,4 +2,6 @@ RoboDuck-*
 .build
 *.pid
 *.log
+.*.sw*
+*.vim
 karma_stats.db

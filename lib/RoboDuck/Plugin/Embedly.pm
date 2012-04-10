@@ -14,7 +14,7 @@ has embedly => (
 );
 
 sub _build_embedly {
-    defined $ENV{ROBODUCK_EMBEDLY_KEY} ? WebService::Embedly->new( api_key => $ENV{ROBODUCK_EMBEDLY_KEY}, maxwidth => 300 ) : undef;
+    defined $ENV{ROBODUCK_EMBEDLY_KEY} ? WebService::Embedly->new( api_key => $ENV{ROBODUCK_EMBEDLY_KEY}, words => 20 ) : undef;
 }
 
 sub get_description {
@@ -42,7 +42,7 @@ sub S_public {
 #              $self->title->get_title({ page => $1, event => 'announce_page_title' });
 #              return;
 #          }
-
+        return PCI_EAT_NONE unless $desc;
         $self->privmsg( $_ => "> $desc" ) for @$$channels;
         }
     }
