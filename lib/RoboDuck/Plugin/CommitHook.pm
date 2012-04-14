@@ -86,6 +86,7 @@ sub received_git_commit {
 
     for (@{$self->{bot}->get_channels}) {
         $self->privmsg( $_ => $initial_msg ) if $commit_count;
+        $self->privmsg( $_ => "[git] $pusher_name tagged $repo_url \"$1\"" ) if !$commit_count && $ref =~ qr|^refs/tags/(.+)$|;
     }
 
     for (@{$commits}) {
