@@ -34,6 +34,9 @@ sub S_bot_addressed {
         when (/^$mynick\W*$/i) {
             $reply = "That's me! My source: http://github.com/Getty/duckduckgo-roboduck";
         }
+        when (/^google$/i) { 
+            $reply = "That shitty search engine nobody uses because it sucks ass";
+        }
         default {
             return PCI_EAT_NONE;
         }
@@ -62,6 +65,9 @@ sub S_public {
         }
         when (/(\W|^)dog(g|s)?(y|ies)?|pupp(y|ies)/) {
             $reply = "Woof. http://omfgdogs.com/";
+        }
+        when (/^oh?\s*rly/i) {
+            $reply = "YA RLY";
         }
     }
     if ($reply) { 
