@@ -2,6 +2,7 @@ package RoboDuck::Plugin::DuckDuckGo;
 use 5.10.0;
 use Moses::Plugin;
 use WWW::DuckDuckGo;
+use HTML::Entities;
 
 has ddg => (
     isa     => 'WWW::DuckDuckGo',
@@ -56,7 +57,7 @@ sub S_bot_addressed {
 #return PCI_EAT_ALL;
                 }
             }
-            if ($reply) { $self->privmsg( $_ => "$nick: ".$reply ) for @$$channels; }
+            if ($reply) { $self->privmsg( $_ => "$nick: ".decode_entities($reply) ) for @$$channels; }
             return PCI_EAT_ALL;
         }
         default { return PCI_EAT_NONE; };
