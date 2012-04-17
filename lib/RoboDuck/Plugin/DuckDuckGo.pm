@@ -3,6 +3,7 @@ use 5.10.0;
 use Moses::Plugin;
 use WWW::DuckDuckGo;
 use HTML::Entities;
+use MooseX::Aliases;
 
 has ddg => (
     isa     => 'WWW::DuckDuckGo',
@@ -13,7 +14,7 @@ has ddg => (
 );
 
 sub _build_ddg {
-    WWW::DuckDuckGo->new( http_agent_name => __PACKAGE__ . '/' . "0.0development" );
+    WWW::DuckDuckGo->new( http_agent_name => __PACKAGE__ . '/' . "0.0development", safeoff => 1 );
 }
 
 sub S_say_later {
