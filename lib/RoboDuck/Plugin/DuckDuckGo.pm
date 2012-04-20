@@ -33,7 +33,6 @@ sub S_bot_addressed {
     given ($$message) {
         when (/^(.+)$/i) {
             my $res = $self->search($1);
-            warn $res->heading;
             given ($res) {
                 when ( $_->has_answer ) {
                     $reply = "${\$res->answer} (${\$res->answer_type})";
@@ -58,7 +57,10 @@ sub S_bot_addressed {
 #return PCI_EAT_ALL;
                 }
             }
-            if ($reply) { $self->privmsg( $_ => "$nick: ".decode_entities($reply) ) for @$$channels; }
+            if ($reply) { 
+                $reply =~ s/\s*<br>\s*/, /g; $reply =~ s/\s*\n\s*/ /g;
+                $self->privmsg( $_ => "$nick: ".decode_entities($reply) ) for @$$channels; 
+            }
             return PCI_EAT_ALL;
         }
         default { return PCI_EAT_NONE; };
