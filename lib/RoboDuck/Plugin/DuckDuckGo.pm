@@ -34,6 +34,9 @@ sub S_bot_addressed {
         when (/^(.+)$/i) {
             my $res = $self->search($1);
             given ($res) {
+                when ( $_->has_redirect ) { 
+                    $reply = $_->redirect;
+                }
                 when ( $_->has_answer ) {
                     $reply = "${\$res->answer} (${\$res->answer_type})";
                 }                

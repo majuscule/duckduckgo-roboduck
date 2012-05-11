@@ -31,7 +31,6 @@ owner '*!*@dukgo.com';
 
 plugins
   Goodies => "RoboDuck::Plugin::Goodies",
-  Bangs => "RoboDuck::Plugin::Bangs",
   DuckDuckGo => "RoboDuck::Plugin::DuckDuckGo",
   WolframAlpha => "RoboDuck::Plugin::WolframAlpha",
   Links => "RoboDuck::Plugin::Links",
@@ -50,7 +49,7 @@ plugins
 #   addressed => 0,
 #   debug => 0,
 # ),
-  #AIML => "RoboDuck::Plugin::AIML",
+#AIML => "RoboDuck::Plugin::AIML",
   ;
 
 after start => sub {
