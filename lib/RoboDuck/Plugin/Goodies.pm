@@ -89,6 +89,8 @@ sub S_ctcp_action {
         }
         when (/^(slap|kick|hit|punche|whack|hate)s\s+$mynick/i) {
             $reply = "cries";
+            $reply = "kicks Getty" if int(rand(55)) == 23;
+            $reply = "kicks crazedpsyc" if int(rand(55)) == 23;
         }
         when (/^(\w+\s)?(fuck|penetrate|rape|enter|touche|violate|terminate)s\s+$mynick/i) {
             $self->privmsg( $target => "$nick: ".$gfy[rand(@gfy)] );
