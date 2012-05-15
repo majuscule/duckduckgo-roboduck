@@ -26,6 +26,9 @@ my %links = (
     # minisites
     "dontbubble"=> "http://dontbubble.us/",
     "donttrack" => "http://donttrack.us/",
+    "duckduckhack"=> "http://duckduckhack.com/",
+    "hack"      => \"duckduckhack",
+    "ddh"       => \"duckduckhack",
 
     # other DDG sites
     "help"      => "https://help.duckduckgo.com/",
