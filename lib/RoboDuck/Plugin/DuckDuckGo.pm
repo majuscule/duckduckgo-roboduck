@@ -42,6 +42,7 @@ sub S_bot_addressed {
                 }                
                 when ( $_->has_definition ) {
                     $reply = $res->definition;
+                    $reply .= " (".$res->definition_source.")" if $res->has_definition_source;
                 }
                 when ( $_->has_abstract_text ) {
                     $reply = $res->abstract_text;
