@@ -56,6 +56,7 @@ my %links = (
     "history"   => "http://help.duckduckgo.com/customer/portal/articles/216406-history",
     "source"    => "http://help.duckduckgo.com/customer/portal/articles/216399-sources",
     "spam"      => "http://help.duckduckgo.com/customer/portal/articles/215611-spam",
+    "logo"      => "http://help.duckduckgo.com/customer/portal/articles/485613-holiday-logos",
     "pii"       => "http://www.gabrielweinberg.com/blog/2010/11/how-to-not-log-personally-identifiable-information.html",
 
     # specific browsers
