@@ -33,15 +33,28 @@ has _aiml => (
     handles => { tell_bot => 'tell' }
 );
 
+sub tell {
+    my ( $self, $who, $what ) = @_;
+    use DDP; p($who); p($what);
+    my ( $res, $id ) = $self->tell_bot( $what, $self->get_custid($who) );
+    $self->set_custid( $who => $id );
+    return ucfirst(lc(translate($res)));
+}
+
 sub S_bot_addressed {
     my ( $self, $irc, $nickstring, $channels, $message ) = @_;
     $message = $$message;
-    return unless $message =~ /^(?:hi|chat|say)\W+(.+)$/;
+    return unless $message =~ /^(?:hi|chat|say|\.|:|-)\W+(.+)$/;
     my @channels = @{$$channels};
     my ($nick) = split /!/, $$nickstring;
-    my ( $res, $id ) = $self->tell_bot( $1, $self->get_custid($nick) );
-    $self->set_custid( $nick => $id );
-    $self->privmsg( $_ => "$nick: " . ucfirst(lc(translate($res))) ) for @channels;
+    $self->privmsg( $_ => "$nick: " . $self->tell($nick,$message) ) for @channels;
+    return PCI_EAT_ALL;
+}
+
+sub S_msg {
+    my ( $self, $irc, $nickstring, $recip, $message, $identified ) = @_;
+    my ($nick) = split /!/, $$nickstring;
+    $self->privmsg( $nick => $self->tell($nick,$$message) );
     return PCI_EAT_ALL;
 }
 

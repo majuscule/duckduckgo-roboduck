@@ -13,6 +13,7 @@ our $VERSION ||= '0.0development';
 
 use RoboDuck::Plugin::SigFail;
 use RoboDuck::Plugin::GetPageTitle;
+use RoboDuck::Plugin::AIML;
 
 # External plugins
 use POE::Component::IRC::Plugin::Karma;
@@ -49,7 +50,7 @@ plugins
 #   addressed => 0,
 #   debug => 0,
 # ),
-#AIML => "RoboDuck::Plugin::AIML",
+  AIML => "RoboDuck::Plugin::AIML",
   ;
 
 after start => sub {
@@ -59,13 +60,17 @@ after start => sub {
     POE::Kernel->run;
 };
 
+has aiml => (
+        is => 'ro',
+        isa => "RoboDuck::Plugin::AIML",
+        default => sub { RoboDuck::Plugin::AIML->new(bot => shift) },
+);
+
 event irc_bot_addressed => sub {
     my ( $self, $nickstr, $channel, $msg ) = @_[ OBJECT, ARG0, ARG1, ARG2 ];
     my ($nick) = split /!/, $nickstr;
     given ($msg) {
-        when (/.*/) {
-            $self->privmsg( $channel => "$nick: <irc_sigfail:FAIL>" );
-        }
+        $self->privmsg( $_ => $self->aiml->tell($nick,$msg) ) for @$channel;
     }
 };
 
