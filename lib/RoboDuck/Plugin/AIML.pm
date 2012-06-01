@@ -45,9 +45,10 @@ sub S_bot_addressed {
     my ( $self, $irc, $nickstring, $channels, $message ) = @_;
     $message = $$message;
     return unless $message =~ /^(?:hi|chat|say|\.|:|-)\W+(.+)$/;
+    my $what = $1;
     my @channels = @{$$channels};
     my ($nick) = split /!/, $$nickstring;
-    $self->privmsg( $_ => "$nick: " . $self->tell($nick,$message) ) for @channels;
+    $self->privmsg( $_ => "$nick: " . $self->tell($nick,$what) ) for @channels;
     return PCI_EAT_ALL;
 }
 
