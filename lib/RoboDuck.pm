@@ -31,6 +31,9 @@ username 'duckduckgo';
 owner '*!*@dukgo.com';
 
 plugins
+  WubWubWub => RoboDuck::Plugin::WubWubWub->new({
+		wub_str => 'quack'
+  }),
   Goodies => "RoboDuck::Plugin::Goodies",
   DuckDuckGo => "RoboDuck::Plugin::DuckDuckGo",
   WolframAlpha => "RoboDuck::Plugin::WolframAlpha",
