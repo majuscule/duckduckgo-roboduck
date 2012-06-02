@@ -31,9 +31,6 @@ sub S_bot_addressed {
         when (/^(you are|are you)\s+(?!not)\w*\s?(awesome|great|wonderful|perfect|amazing|($mynick))/i) {
             $reply = "Yes. Yes I am.";
         }
-        when (/^$mynick\W*$/i) {
-            $reply = "That's me! My source: http://github.com/Getty/duckduckgo-roboduck";
-        }
         when (/^google$/i) { 
             $reply = "That shitty search engine nobody uses because it sucks ass";
         }
