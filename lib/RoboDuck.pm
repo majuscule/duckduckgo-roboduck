@@ -35,6 +35,7 @@ plugins
   DuckDuckGo => "RoboDuck::Plugin::DuckDuckGo",
   WolframAlpha => "RoboDuck::Plugin::WolframAlpha",
   Links => "RoboDuck::Plugin::Links",
+  WubWubWub => "RoboDuck::Plugin::WubWubWub",
   YouTube => "RoboDuck::Plugin::YouTube",
   MetaCPAN => "RoboDuck::Plugin::MetaCPAN",
   CommitHook => "RoboDuck::Plugin::CommitHook",
