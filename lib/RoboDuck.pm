@@ -17,6 +17,7 @@ use RoboDuck::Plugin::AIML;
 
 # External plugins
 use POE::Component::IRC::Plugin::Karma;
+use POE::Component::IRC::Plugin::WubWubWub;
 
 with qw(MooseX::Daemonize);
 
@@ -31,7 +32,7 @@ username 'duckduckgo';
 owner '*!*@dukgo.com';
 
 plugins
-  WubWubWub => RoboDuck::Plugin::WubWubWub->new({
+  WubWubWub => POE::Component::IRC::Plugin::WubWubWub->new({
 		wub_str => 'quack'
   }),
   Goodies => "RoboDuck::Plugin::Goodies",
@@ -88,8 +89,10 @@ event announce_shortened_url => sub {
     my ( $message, $url ) = @{$returned}{ '_message', 'short' };
     $message =~ s/SHORT_URL/$url/;
 
-    for (@{$self->get_channels}) {
-        $self->privmsg( $_ => $message );
+    my @msg = split /--\n--/, $message;
+    for my $chan (@{$self->get_channels}) {
+        print "$chan => $_" for @msg;
+        $self->privmsg( $chan => $_ ) for @msg;
     }
 };
 

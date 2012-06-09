@@ -5,7 +5,6 @@ extends qw(Adam::Plugin);
 
 # ABSTRACT: A Plugin for talking to Pandorabots.com
 
-use Acme::LOLCAT;
 use POE::Component::IRC::Plugin qw(PCI_EAT_ALL);
 use Net::AIML;
 
@@ -35,10 +34,9 @@ has _aiml => (
 
 sub tell {
     my ( $self, $who, $what ) = @_;
-    use DDP; p($who); p($what);
     my ( $res, $id ) = $self->tell_bot( $what, $self->get_custid($who) );
     $self->set_custid( $who => $id );
-    return ucfirst(lc(translate($res)));
+    return $res;
 }
 
 sub S_bot_addressed {

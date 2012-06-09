@@ -89,7 +89,9 @@ sub received_git_commit {
         $self->privmsg( $_ => "[git] $pusher_name tagged $repo_url \"$1\"" ) if !$commit_count && $ref =~ qr|^refs/tags/(.+)$|;
     }
 
-    for (@{$commits}) {
+    my $last = $#{$commits} <= 3 ? $#{$commits} : 3;
+    my $c=0;
+    for (@{$commits}[0..$last]) {
         my ( $id, $url, $author, $msg ) = @{$_}{ 'id', 'url', 'author', 'message' };
         my $short_id = substr $id, 0, 7;
         my $author_name = $author->{name};
@@ -99,8 +101,9 @@ sub received_git_commit {
                 url => $url,
                 event => 'announce_shortened_url',
                 session => $self->{bot}->get_session_id,
-                _message => $commit_message
-            });
+                _message => $last < $#{$commits} && $c == $last ? "$commit_message--\n--... and ".($#{$commits}-$last)." more" : $commit_message
+        });
+        $c++;
     }
 }
 
