@@ -25,7 +25,7 @@ sub S_say_later {
 
 
 sub S_bot_addressed {
-    my ( $self, $irc, $nickstring, $channels, $message ) = @_;
+    my ( $self, $irc, $nickstring, $channels, $message, %opts ) = @_;
     my ( $nick ) = split /!/, $$nickstring;
     my $mynick = $self->nick;
     my $reply;
@@ -63,7 +63,8 @@ sub S_bot_addressed {
             }
             if ($reply) { 
                 $reply =~ s/\s*<br>\s*/, /g; $reply =~ s/\s*\n\s*/ /g;
-                $self->privmsg( $_ => "$nick: ".decode_entities($reply) ) for @$$channels; 
+                if ($opts{internal}) { return decode_entities($reply) }
+                else { $self->privmsg( $_ => "$nick: ".decode_entities($reply) ) for @$$channels }
             }
             return PCI_EAT_ALL;
         }

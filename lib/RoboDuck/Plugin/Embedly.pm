@@ -4,6 +4,7 @@ use Moses::Plugin;
 use WebService::Embedly;
 use Moose::Util::TypeConstraints;
 use Regexp::Common 'URI';
+use URL::Encode 'url_decode_utf8';
 
 class_type 'WebService::Embedly';
 has embedly => (
@@ -18,8 +19,15 @@ sub _build_embedly {
 }
 
 sub get_description {
-    my $self = shift;
-    my $url = shift;
+    my ($self, $url, $nick, $channels) = @_;
+
+    if ( $url =~ m{://duckduckgo\.com/.+q=(.+?)(?:&|$)} ) {
+        use DDP;
+        my $decoded_q = url_decode_utf8($1);
+        my $ret = $self->{bot}{heap}{_irc}->plugin_get('DuckDuckGo')->S_bot_addressed($self->{bot}{heap}{_irc}, $nick, $channels, \$decoded_q, internal => 1);
+        return $ret unless $ret eq 1;
+        return $decoded_q . " at DuckDuckGo";
+    }
 
     my $oembed_ref = $self->embedly->oembed( $url );
     if (defined $$oembed_ref{description}) {
@@ -36,7 +44,7 @@ sub S_public {
 
     given ($$message) {
         when (/($RE{URI}{HTTP}{ -scheme => qr\/https?\/ })/) {
-        my $desc = $self->get_description($1);
+        my $desc = $self->get_description($1, $nickstring, $channels);
 
 #           unless ($desc) { # get the title of normal pages
 #              $self->title->get_title({ page => $1, event => 'announce_page_title' });
