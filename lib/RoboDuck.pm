@@ -12,7 +12,6 @@ use JSON::XS;
 our $VERSION ||= '0.0development';
 
 use RoboDuck::Plugin::SigFail;
-use RoboDuck::Plugin::GetPageTitle;
 use RoboDuck::Plugin::AIML;
 
 # External plugins
