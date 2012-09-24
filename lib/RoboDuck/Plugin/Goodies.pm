@@ -51,17 +51,19 @@ sub S_public {
     my $reply;
 
     given ($$message) {
-        when (/(^|\W)(cows?|moo)($|\W)/i) {
-            $reply = "MOOOOooo! http://www.youtube.com/watch?v=FavUpD_IjVY";
-        }
-        when (/(^|\W)(meow|cats?|kittens?|kitty|kitties)($|\W)/i) {
-            $reply = "MEOW. https://www.youtube.com/watch?v=QNwCojCJ3-Q";
-        }
-        when (/(\W|^)(bear|cycles?)(\W|$)/) {
-            $reply = "http://www.youtube.com/watch?v=-0Xa4bHcJu8";
-        }
-        when (/(\W|^)dog(g|s)?(y|ies)?|pupp(y|ies)/) {
-            $reply = "Woof. http://omfgdogs.com/";
+        if(int(rand(20)) == 13)
+            when (/(^|\W)(cows?|moo)($|\W)/i) {
+                $reply = "MOOOOooo! http://www.youtube.com/watch?v=FavUpD_IjVY";
+            }
+            when (/(^|\W)(meow|cats?|kittens?|kitty|kitties)($|\W)/i) {
+                $reply = "MEOW. https://www.youtube.com/watch?v=QNwCojCJ3-Q";
+            }
+            when (/(\W|^)(bear|cycles?)(\W|$)/) {
+                $reply = "http://www.youtube.com/watch?v=-0Xa4bHcJu8";
+            }
+            when (/(\W|^)dog(g|s)?(y|ies)?|pupp(y|ies)/) {
+                $reply = "Woof. http://omfgdogs.com/";
+            }
         }
         when (/^oh?\s*rly/i) {
             $reply = "YA RLY";
