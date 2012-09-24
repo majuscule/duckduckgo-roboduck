@@ -51,7 +51,7 @@ sub S_public {
     my $reply;
 
     given ($$message) {
-        if(int(rand(20)) == 13)
+        if(int(rand(20)) == 13) {
             when (/(^|\W)(cows?|moo)($|\W)/i) {
                 $reply = "MOOOOooo! http://www.youtube.com/watch?v=FavUpD_IjVY";
             }
