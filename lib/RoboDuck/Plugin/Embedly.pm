@@ -22,9 +22,8 @@ sub get_description {
     my ($self, $url, $nick, $channels) = @_;
 
     if ( $url =~ m{://duckduckgo\.com/.+q=(.+?)(?:&|$)} ) {
-        use DDP;
         my $decoded_q = url_decode_utf8($1);
-        my $ret = $self->{bot}{heap}{_irc}->plugin_get('DuckDuckGo')->S_bot_addressed($self->{bot}{heap}{_irc}, $nick, $channels, \$decoded_q, internal => 1);
+        my $ret = $self->{bot}{heap}{_irc}->plugin_get('DuckDuckGo')->S_bot_addressed($self->{bot}{heap}{_irc}, $nick, $channels, \$decoded_q, {internal => 1});
         return $ret unless $ret eq 1;
         return $decoded_q . " at DuckDuckGo";
     }

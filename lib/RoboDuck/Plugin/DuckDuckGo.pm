@@ -25,7 +25,8 @@ sub S_say_later {
 
 
 sub S_bot_addressed {
-    my ( $self, $irc, $nickstring, $channels, $message, %opts ) = @_;
+    my ( $self, $irc, $nickstring, $channels, $message, $opts ) = @_;
+    my %opts = ref $opts eq 'HASH' ? %{$opts} : ();
     my ( $nick ) = split /!/, $$nickstring;
     my $mynick = $self->nick;
     my $reply;
