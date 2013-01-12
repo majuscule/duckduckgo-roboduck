@@ -29,7 +29,7 @@ nickname $ENV{ROBODUCK_NICKNAME} || ( $ENV{USER} eq 'roboduck' ? 'RoboDuck' : 'R
 channels '#duckduckgo';
 username 'duckduckgo';
 owner '*!*@dukgo.com';
-extra_args ({ localaddr => $ENV{ROBODUCK_LOCAL_IP}}) if defined $ENV{ROBODUCK_LOCAL_IP};
+poco_irc_args ({ localaddr => $ENV{ROBODUCK_LOCAL_IP}}) if defined $ENV{ROBODUCK_LOCAL_IP};
 
 plugins
   WubWubWub => POE::Component::IRC::Plugin::WubWubWub->new({
