@@ -34,8 +34,7 @@ has _aiml => (
 
 sub tell {
     my ( $self, $who, $what ) = @_;
-    my ( $res, $id ) = $self->tell_bot( $what, $self->get_custid($who) );
-    $self->set_custid( $who => $id );
+    my ( $res, $id ) = $self->tell_bot( $what, $who );
     return $res;
 }
 
