@@ -11,7 +11,7 @@ use Net::AIML;
 has botid => (
     isa     => 'Str',
     is      => 'ro',
-    default => sub {'8215c8b9fe34cb3e'},
+    default => sub {$ENV{'ROBODUCK_AIML_BOTID'} // 'ab83497d9e345b6b'},
 );
 
 has _custids => (
