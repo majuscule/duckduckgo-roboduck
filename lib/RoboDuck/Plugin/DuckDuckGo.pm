@@ -14,7 +14,7 @@ has ddg => (
 );
 
 sub _build_ddg {
-    WWW::DuckDuckGo->new( http_agent_name => __PACKAGE__ . '/' . "0.0development", safeoff => 1 );
+    WWW::DuckDuckGo->new( http_agent_name => __PACKAGE__ . '/' . $RoboDuck::VERSION, safeoff => 1 );
 }
 
 sub S_say_later {
